@@ -1,319 +1,300 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'sign_up.dart'; // Import SignUpScreen
 
-class SignInScreen extends StatelessWidget {
+class SignInScreen extends StatefulWidget {
+  const SignInScreen({super.key});
+
+  @override
+  _SignInScreenState createState() => _SignInScreenState();
+}
+
+class _SignInScreenState extends State<SignInScreen> {
+  late TextEditingController _emailController;
+  late TextEditingController _passwordController;
+  bool _obscure = true;
+  late TapGestureRecognizer _signUpRecognizer; // Add recognizer for navigation
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController = TextEditingController();
+    _passwordController = TextEditingController();
+    _signUpRecognizer = TapGestureRecognizer()
+      ..onTap = () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => SignUpScreen()),
+        );
+      };
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _signUpRecognizer.dispose(); // Dispose of the recognizer
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFDF6149),
       body: Center(
         child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 412,
-                  height: 892,
-                  clipBehavior: Clip.antiAlias,
-                  decoration: BoxDecoration(color: const Color(0xFFDF6149)),
-                  child: Stack(
-                    children: [
-                      Positioned(
-                        left: 11,
-                        top: 334,
-                        child: Container(
-                          width: 621,
-                          height: 628,
-                          decoration: ShapeDecoration(
-                            color: const Color(0xFFFFFBF0),
-                            shape: OvalBorder(),
-                          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 412,
+                height: 892,
+                clipBehavior: Clip.antiAlias,
+                decoration: BoxDecoration(color: const Color(0xFFDF6149)),
+                child: Stack(
+                  children: [
+                    Positioned(
+                      right: -234,
+                      top: 334,
+                      child: Container(
+                        width: 621,
+                        height: 619,
+                        decoration: ShapeDecoration(
+                          color: const Color(0xFFFFFBF0),
+                          shape: OvalBorder(),
                         ),
                       ),
-                      Positioned(
-                        left: 55,
-                        top: -8,
-                        child: Container(
-                          width: 300,
-                          height: 300,
-                          clipBehavior: Clip.antiAlias,
-                          decoration: BoxDecoration(),
-                          child: SvgPicture.asset('assets/images/logo_yp.svg'),
-                        ),
+                    ),
+                    Positioned(
+                      left: 55,
+                      top: -8,
+                      child: Container(
+                        width: 300,
+                        height: 300,
+                        clipBehavior: Clip.antiAlias,
+                        decoration: BoxDecoration(),
+                        child: SvgPicture.asset('assets/images/logo_yp.svg'),
                       ),
-                      Positioned(
-                        left: 23,
-                        top: 267,
-                        child: Container(
-                          width: 367,
-                          height: 502,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            spacing: 34,
-                            children: [
-                              SizedBox(
-                                child: Text(
-                                  'Sign in ',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 27,
-                                    fontFamily: 'Kantumruy Pro',
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                    ),
+                    Positioned(
+                      left: 23,
+                      top: 267,
+                      child: SizedBox(
+                        width: 367,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              child: Text(
+                                'Sign in ',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 27,
+                                  fontFamily: 'Kantumruy Pro',
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              Container(
-                                width: double.infinity,
-                                height: 305,
-                                padding: const EdgeInsets.symmetric(horizontal: 19, vertical: 27),
-                                decoration: ShapeDecoration(
-                                  color: const Color(0x7FFFE0D4),
-                                  shape: RoundedRectangleBorder(
-                                    side: BorderSide(
-                                      width: 1,
-                                      color: const Color(0x59DF6149),
-                                    ),
-                                    borderRadius: BorderRadius.circular(27),
+                            ),
+                            SizedBox(height: 34),
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(horizontal: 19, vertical: 27),
+                              decoration: ShapeDecoration(
+                                color: const Color(0x7FFFE0D4),
+                                shape: RoundedRectangleBorder(
+                                  side: BorderSide(
+                                    width: 1,
+                                    color: const Color(0x59DF6149),
                                   ),
-                                  shadows: [
-                                    BoxShadow(
-                                      color: Color(0x440D240B),
-                                      blurRadius: 17.10,
-                                      offset: Offset(0, 6),
-                                      spreadRadius: 0,
-                                    )
-                                  ],
+                                  borderRadius: BorderRadius.circular(27),
                                 ),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  spacing: 28,
-                                  children: [
-                                    Container(
-                                      child: Column(
+                                shadows: [
+                                  BoxShadow(
+                                    color: Color(0x440D240B),
+                                    blurRadius: 17.10,
+                                    offset: Offset(0, 6),
+                                    spreadRadius: 0,
+                                  )
+                                ],
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Column(
                                         mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment: MainAxisAlignment.start,
                                         crossAxisAlignment: CrossAxisAlignment.start,
-                                        spacing: 32,
                                         children: [
+                                          Text(
+                                            'Email',
+                                            style: TextStyle(
+                                              color: const Color(0xFF981800),
+                                              fontSize: 16,
+                                              fontFamily: 'Kantumruy Pro',
+                                              fontWeight: FontWeight.w300,
+                                            ),
+                                          ),
+                                          SizedBox(height: 16),
                                           Container(
                                             width: double.infinity,
-                                            height: null,
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
+                                            height: 50,
+                                            padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 10),
+                                            decoration: ShapeDecoration(
+                                              color: const Color(0xFFF7F7F7),
+                                              shape: RoundedRectangleBorder(
+                                                side: BorderSide(
+                                                  width: 1,
+                                                  color: const Color(0x59DF6149),
+                                                ),
+                                                borderRadius: BorderRadius.circular(14),
+                                              ),
+                                            ),
+                                            child: Row(
                                               mainAxisAlignment: MainAxisAlignment.start,
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              spacing: 16,
+                                              crossAxisAlignment: CrossAxisAlignment.center,
                                               children: [
                                                 Container(
-                                                  width: double.infinity,
-                                                  child: Column(
-                                                    mainAxisSize: MainAxisSize.min,
-                                                    mainAxisAlignment: MainAxisAlignment.start,
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    children: [
-                                                      SizedBox(
-                                                        width: 329,
-                                                        child: Text(
-                                                          'Email',
-                                                          style: TextStyle(
-                                                            color: const Color(0xFF981800),
-                                                            fontSize: 16,
-                                                            fontFamily: 'KantumruyPro',
-                                                            fontWeight: FontWeight.w300,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      Container(
-                                                        width: double.infinity,
-                                                        height: 50,
-                                                        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 10),
-                                                        decoration: ShapeDecoration(
-                                                          color: const Color(0xFFF7F7F7),
-                                                          shape: RoundedRectangleBorder(
-                                                            side: BorderSide(
-                                                              width: 1,
-                                                              color: const Color(0x59DF6149),
-                                                            ),
-                                                            borderRadius: BorderRadius.circular(14),
-                                                          ),
-                                                        ),
-                                                        child: Row(
-                                                          mainAxisSize: MainAxisSize.min,
-                                                          mainAxisAlignment: MainAxisAlignment.start,
-                                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                                          spacing: 18,
-                                                          children: [
-                                                            Container(
-                                                              width: 300,
-                                                              child: Row(
-                                                                mainAxisSize: MainAxisSize.min,
-                                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                                crossAxisAlignment: CrossAxisAlignment.end,
-                                                                spacing: 18,
-                                                                children: [
-                                                                  Container(
-                                                                    width: 20,
-                                                                    height: 20,
-                                                                    clipBehavior: Clip.antiAlias,
-                                                                    decoration: BoxDecoration(),
-                                                                    child: SvgPicture.asset('assets/images/mail.svg'),
-                                                                  ),
-                                                                  SizedBox(
-                                                                    child: Text.rich(
-                                                                      TextSpan(
-                                                                        children: [
-                                                                          TextSpan(
-                                                                            text: '@gmail.com ',
-                                                                            style: TextStyle(
-                                                                              color: const Color(0xFF959595),
-                                                                              fontSize: 15,
-                                                                              fontFamily: 'Kantumruy Pro',
-                                                                              fontWeight: FontWeight.w400,
-                                                                            ),
-                                                                          ),
-                                                                          TextSpan(
-                                                                            text: '*',
-                                                                            style: TextStyle(
-                                                                              color: const Color(0xFF981800),
-                                                                              fontSize: 15,
-                                                                              fontFamily: 'Kantumruy Pro',
-                                                                              fontWeight: FontWeight.w400,
-                                                                            ),
-                                                                          ),
-                                                                        ],
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      )
-                                                    ],
-                                                  ),
+                                                  width: 20,
+                                                  height: 20,
+                                                  clipBehavior: Clip.antiAlias,
+                                                  decoration: BoxDecoration(),
+                                                  child: SvgPicture.asset('assets/images/mail.svg'),
                                                 ),
-                                                Container(
-                                                  width: double.infinity,
-                                                  child: Column(
-                                                    mainAxisSize: MainAxisSize.min,
-                                                    mainAxisAlignment: MainAxisAlignment.start,
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    children: [
-                                                      SizedBox(
-                                                        child: Text(
-                                                          'Password',
-                                                          style: TextStyle(
-                                                            color: const Color(0xFF981800),
-                                                            fontSize: 16,
-                                                            fontFamily: 'Kantumruy Pro',
-                                                            fontWeight: FontWeight.w300,
-                                                          ),
-                                                        ),
+                                                const SizedBox(width: 18),
+                                                Expanded(
+                                                  child: TextField(
+                                                    controller: _emailController,
+                                                    style: const TextStyle(
+                                                      color: Color(0xFF000000),
+                                                      fontSize: 15,
+                                                      fontFamily: 'Kantumruy Pro',
+                                                      fontWeight: FontWeight.w400,
+                                                    ),
+                                                    decoration: InputDecoration(
+                                                      hintText: '@gmail.com ',
+                                                      hintStyle: TextStyle(
+                                                        color: const Color(0xFF959595),
+                                                        fontSize: 15,
+                                                        fontFamily: 'Kantumruy Pro',
+                                                        fontWeight: FontWeight.w400,
                                                       ),
-                                                      Container(
-                                                        width: double.infinity,
-                                                        height: 50,
-                                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                                                        decoration: ShapeDecoration(
-                                                          color: const Color(0xFFF7F7F7),
-                                                          shape: RoundedRectangleBorder(
-                                                            side: BorderSide(
-                                                              width: 1,
-                                                              color: const Color(0x59DF6149),
-                                                            ),
-                                                            borderRadius: BorderRadius.circular(14),
-                                                          ),
-                                                        ),
-                                                        child: Row(
-                                                          mainAxisSize: MainAxisSize.min,
-                                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                                          spacing: 18,
-                                                          children: [
-                                                            Row(
-                                                              mainAxisSize: MainAxisSize.min,
-                                                              mainAxisAlignment: MainAxisAlignment.start,
-                                                              crossAxisAlignment: CrossAxisAlignment.end,
-                                                              spacing: 18,
-                                                              children: [
-                                                                Container(
-                                                                  width: 20,
-                                                                  height: 20,
-                                                                  clipBehavior: Clip.antiAlias,
-                                                                  decoration: BoxDecoration(),
-                                                                  child: SvgPicture.asset('assets/images/lock.svg'),
-                                                                ),
-                                                                Text.rich(
-                                                                  TextSpan(
-                                                                    children: [
-                                                                      TextSpan(
-                                                                        text: 'enter your password ',
-                                                                        style: TextStyle(
-                                                                          color: const Color(0xFF959595),
-                                                                          fontSize: 15,
-                                                                          fontFamily: 'Kantumruy Pro',
-                                                                          fontWeight: FontWeight.w400,
-                                                                        ),
-                                                                      ),
-                                                                      TextSpan(
-                                                                        text: '*',
-                                                                        style: TextStyle(
-                                                                          color: const Color(0xFF981800),
-                                                                          fontSize: 15,
-                                                                          fontFamily: 'Kantumruy Pro',
-                                                                          fontWeight: FontWeight.w400,
-                                                                        ),
-                                                                      ),
-                                                                    ],
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                            Container(
-                                                              width: 22,
-                                                              height: 20,
-                                                              clipBehavior: Clip.antiAlias,
-                                                              decoration: BoxDecoration(),
-                                                              child: SvgPicture.asset('assets/images/eye_off.svg'),
-                                                            ),
-                                                          ],
-                                                        ),
+                                                      suffixText: '*',
+                                                      suffixStyle: TextStyle(
+                                                        color: const Color(0xFF981800),
+                                                        fontSize: 15,
+                                                        fontFamily: 'Kantumruy Pro',
+                                                        fontWeight: FontWeight.w400,
                                                       ),
-                                                    ],
+                                                      border: InputBorder.none,
+                                                      contentPadding: EdgeInsets.zero,
+                                                      isDense: true,
+                                                    ),
                                                   ),
                                                 ),
                                               ],
                                             ),
+                                          )
+                                        ],
+                                      ),
+                                      SizedBox(height: 32),
+                                      Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Password',
+                                            style: TextStyle(
+                                              color: const Color(0xFF981800),
+                                              fontSize: 16,
+                                              fontFamily: 'Kantumruy Pro',
+                                              fontWeight: FontWeight.w300,
+                                            ),
                                           ),
+                                          SizedBox(height: 16),
                                           Container(
                                             width: double.infinity,
                                             height: 50,
                                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                                             decoration: ShapeDecoration(
-                                              color: const Color(0xFFABBA72),
+                                              color: const Color(0xFFF7F7F7),
                                               shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(50),
+                                                side: BorderSide(
+                                                  width: 1,
+                                                  color: const Color(0x59DF6149),
+                                                ),
+                                                borderRadius: BorderRadius.circular(14),
                                               ),
                                             ),
                                             child: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              mainAxisAlignment: MainAxisAlignment.start,
                                               crossAxisAlignment: CrossAxisAlignment.center,
-                                              spacing: 18,
                                               children: [
-                                                Text(
-                                                  'SIGN IN',
-                                                  style: TextStyle(
-                                                    color: const Color(0xFF4B572B),
-                                                    fontSize: 16,
-                                                    fontFamily: 'Kantumruy Pro',
-                                                    fontWeight: FontWeight.w700,
+                                                Container(
+                                                  width: 20,
+                                                  height: 20,
+                                                  clipBehavior: Clip.antiAlias,
+                                                  decoration: BoxDecoration(),
+                                                  child: SvgPicture.asset('assets/images/lock.svg'),
+                                                ),
+                                                const SizedBox(width: 18),
+                                                Expanded(
+                                                  child: TextField(
+                                                    controller: _passwordController,
+                                                    obscureText: _obscure,
+                                                    style: const TextStyle(
+                                                      color: Color(0xFF000000),
+                                                      fontSize: 15,
+                                                      fontFamily: 'Kantumruy Pro',
+                                                      fontWeight: FontWeight.w400,
+                                                    ),
+                                                    decoration: InputDecoration(
+                                                      hintText: 'enter your password ',
+                                                      hintStyle: TextStyle(
+                                                        color: const Color(0xFF959595),
+                                                        fontSize: 15,
+                                                        fontFamily: 'Kantumruy Pro',
+                                                        fontWeight: FontWeight.w400,
+                                                      ),
+                                                      suffixText: '*',
+                                                      suffixStyle: TextStyle(
+                                                        color: const Color(0xFF981800),
+                                                        fontSize: 15,
+                                                        fontFamily: 'Kantumruy Pro',
+                                                        fontWeight: FontWeight.w400,
+                                                      ),
+                                                      border: InputBorder.none,
+                                                      contentPadding: EdgeInsets.zero,
+                                                      isDense: true,
+                                                    ),
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 18),
+                                                GestureDetector(
+                                                  onTap: () {
+                                                    setState(() {
+                                                      _obscure = !_obscure;
+                                                    });
+                                                  },
+                                                  child: Container(
+                                                    width: 22,
+                                                    height: 20,
+                                                    clipBehavior: Clip.antiAlias,
+                                                    decoration: BoxDecoration(),
+                                                    child: SvgPicture.asset(
+                                                      _obscure ? 'assets/images/eye_off.svg' : 'assets/images/eye_on.svg',
+                                                    ),
                                                   ),
                                                 ),
                                               ],
@@ -321,48 +302,81 @@ class SignInScreen extends StatelessWidget {
                                           ),
                                         ],
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(
-                                width: 367,
-                                height: 25,
-                                child: Text.rich(
-                                  TextSpan(
-                                    children: [
-                                      TextSpan(
-                                        text: 'Don’t have an account? ',
-                                        style: TextStyle(
-                                          color: const Color(0xFFDF6149),
-                                          fontSize: 15,
-                                          fontFamily: 'Kantumruy Pro',
-                                          fontWeight: FontWeight.w400,
+                                      SizedBox(height: 32),
+                                      Container(
+                                        width: double.infinity,
+                                        height: 50,
+                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                        decoration: ShapeDecoration(
+                                          color: const Color(0xFFABBA72),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(50),
+                                          ),
                                         ),
-                                      ),
-                                      TextSpan(
-                                        text: 'Sign up',
-                                        style: TextStyle(
-                                          color: const Color(0xFF708240),
-                                          fontSize: 15,
-                                          fontFamily: 'Kantumruy Pro',
-                                          fontWeight: FontWeight.w700,
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              'SIGN IN',
+                                              style: TextStyle(
+                                                color: const Color(0xFF4B572B),
+                                                fontSize: 16,
+                                                fontFamily: 'Kantumruy Pro',
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ],
                                   ),
-                                  textAlign: TextAlign.center,
-                                ),
+                                ],
                               ),
-                            ],
-                          ),
+                            ),
+                            SizedBox(height: 34),
+                            SizedBox(
+                              width: 367,
+                              height: 25,
+                              child: Text.rich(
+                                TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: 'Don’t have an account? ',
+                                      style: TextStyle(
+                                        color: const Color(0xFFDF6149),
+                                        fontSize: 15,
+                                        fontFamily: 'Kantumruy Pro',
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: 'Sign up',
+                                      style: TextStyle(
+                                        color: const Color(0xFF708240),
+                                        fontSize: 15,
+                                        fontFamily: 'Kantumruy Pro',
+                                        fontWeight: FontWeight.w700,
+                                        decoration: TextDecoration.underline,
+                                        decorationColor: const Color(0xFF708240),
+                                      ),
+                                      recognizer: _signUpRecognizer, // Add tap recognizer
+                                    ),
+                                  ],
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                )
-              ],
-            ),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );
