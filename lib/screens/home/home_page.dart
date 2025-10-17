@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:yum_plan/screens/planner/planner_screen.dart';
+import 'package:yum_plan/screens/recipes/recipes_list.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -31,6 +32,10 @@ class _HomePageState extends State<HomePage> {
       case 2:
         break;
       case 3:
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const RecipesListScreen()),
+        );
         break;
       case 4:
         break;
