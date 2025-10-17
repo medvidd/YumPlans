@@ -1,7 +1,8 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'sign_up.dart'; // Import SignUpScreen
+import 'sign_up.dart';
+import '/screens/home/home_page.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -14,7 +15,7 @@ class _SignInScreenState extends State<SignInScreen> {
   late TextEditingController _emailController;
   late TextEditingController _passwordController;
   bool _obscure = true;
-  late TapGestureRecognizer _signUpRecognizer; // Add recognizer for navigation
+  late TapGestureRecognizer _signUpRecognizer;
 
   @override
   void initState() {
@@ -34,7 +35,7 @@ class _SignInScreenState extends State<SignInScreen> {
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
-    _signUpRecognizer.dispose(); // Dispose of the recognizer
+    _signUpRecognizer.dispose();
     super.dispose();
   }
 
@@ -303,31 +304,46 @@ class _SignInScreenState extends State<SignInScreen> {
                                         ],
                                       ),
                                       SizedBox(height: 32),
-                                      Container(
-                                        width: double.infinity,
-                                        height: 50,
-                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                                        decoration: ShapeDecoration(
-                                          color: const Color(0xFFABBA72),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(50),
-                                          ),
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              'SIGN IN',
-                                              style: TextStyle(
-                                                color: const Color(0xFF4B572B),
-                                                fontSize: 16,
-                                                fontFamily: 'Kantumruy Pro',
-                                                fontWeight: FontWeight.w700,
-                                              ),
+                                      GestureDetector(
+                                        onTap: () {
+                                          if (_emailController.text.isNotEmpty &&
+                                              _passwordController.text.isNotEmpty) {
+                                            Navigator.pushReplacement(
+                                              context,
+                                              MaterialPageRoute(builder: (context) => const HomePage()),
+                                            );
+                                          } else {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              const SnackBar(content: Text('Please fill all fields')),
+                                            );
+                                          }
+                                        },
+                                        child: Container(
+                                          width: double.infinity,
+                                          height: 50,
+                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                          decoration: ShapeDecoration(
+                                            color: const Color(0xFFABBA72),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(50),
                                             ),
-                                          ],
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                'SIGN IN',
+                                                style: TextStyle(
+                                                  color: const Color(0xFF4B572B),
+                                                  fontSize: 16,
+                                                  fontFamily: 'Kantumruy Pro',
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -361,7 +377,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                         decoration: TextDecoration.underline,
                                         decorationColor: const Color(0xFF708240),
                                       ),
-                                      recognizer: _signUpRecognizer, // Add tap recognizer
+                                      recognizer: _signUpRecognizer,
                                     ),
                                   ],
                                 ),

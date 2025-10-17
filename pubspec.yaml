@@ -31,6 +31,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_svg: ^2.0.10
+  intl: ^0.19.0
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
@@ -66,6 +67,12 @@ flutter:
     - assets/images/eye_off.svg
     - assets/images/eye_on.svg
     - assets/images/user.svg
+    - assets/images/calendar.svg
+    - assets/images/clock.svg
+    - assets/images/home.svg
+    - assets/images/list.svg
+    - assets/images/logo_plate.svg
+    - assets/images/recipes.svg
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
@@ -96,3 +103,20 @@ flutter:
         - asset: assets/fonts/KantumruyPro-SemiBoldItalic.ttf
         - asset: assets/fonts/KantumruyPro-Thin.ttf
         - asset: assets/fonts/KantumruyPro-ThinItalic.ttf
+    - family: DM Mono
+      fonts:
+        - asset: assets/fonts/DMMono-Italic.ttf
+        - asset: assets/fonts/DMMono-Light.ttf
+        - asset: assets/fonts/DMMono-LightItalic.ttf
+        - asset: assets/fonts/DMMono-Medium.ttf
+        - asset: assets/fonts/DMMono-MediumItalic.ttf
+        - asset: assets/fonts/DMMono-Regular.ttf
+    - family: Fredoka
+      fonts:
+        - asset: assets/fonts/Fredoka-Bold.ttf
+        - asset: assets/fonts/Fredoka-Light.ttf
+        - asset: assets/fonts/Fredoka-Medium.ttf
+        - asset: assets/fonts/Fredoka-Regular.ttf
+        - asset: assets/fonts/Fredoka-SemiBold.ttf
+
+

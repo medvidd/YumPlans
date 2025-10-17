@@ -1,7 +1,8 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'sign_in.dart'; // Import SignInScreen
+import 'sign_in.dart';
+import '/screens/home/home_page.dart';
 
 class SignUpScreen extends StatefulWidget {
   @override
@@ -16,7 +17,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   bool _isChecked = false;
-  late TapGestureRecognizer _signInRecognizer; // Add recognizer for navigation
+  late TapGestureRecognizer _signInRecognizer;
 
   @override
   void initState() {
@@ -29,7 +30,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       ..onTap = () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => SignInScreen()),
+          MaterialPageRoute(builder: (context) => const SignInScreen()),
         );
       };
   }
@@ -40,7 +41,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
-    _signInRecognizer.dispose(); // Dispose of the recognizer
+    _signInRecognizer.dispose();
     super.dispose();
   }
 
@@ -119,7 +120,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  // Name Field
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
@@ -190,7 +190,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     ],
                                   ),
                                   SizedBox(height: 16),
-                                  // Email Field
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
@@ -261,7 +260,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     ],
                                   ),
                                   SizedBox(height: 16),
-                                  // Password Field
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
@@ -307,7 +305,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                                   fontWeight: FontWeight.w400,
                                                 ),
                                                 decoration: InputDecoration(
-                                                  hintText: 'create a password ',
+                                                  hintText: 'enter a password ',
                                                   hintStyle: TextStyle(
                                                     color: const Color(0xFF959595),
                                                     fontSize: 15,
@@ -358,7 +356,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     ],
                                   ),
                                   SizedBox(height: 16),
-                                  // Confirm Password Field
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
@@ -445,7 +442,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     ],
                                   ),
                                   SizedBox(height: 16),
-                                  // Terms and Conditions
                                   Row(
                                     crossAxisAlignment: CrossAxisAlignment.center,
                                     children: [
@@ -516,25 +512,43 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     ],
                                   ),
                                   SizedBox(height: 16),
-                                  // Create Account Button
-                                  Container(
-                                    width: double.infinity,
-                                    height: 50,
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                                    decoration: ShapeDecoration(
-                                      color: const Color(0xFFF49069),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(50),
+                                  GestureDetector(
+                                    onTap: () {
+                                      if (_nameController.text.isNotEmpty &&
+                                          _emailController.text.isNotEmpty &&
+                                          _passwordController.text.isNotEmpty &&
+                                          _confirmPasswordController.text.isNotEmpty &&
+                                          _passwordController.text == _confirmPasswordController.text &&
+                                          _isChecked) {
+                                        Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(builder: (context) => const HomePage()),
+                                        );
+                                      } else {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(content: Text('Please fill all fields and agree to terms')),
+                                        );
+                                      }
+                                    },
+                                    child: Container(
+                                      width: double.infinity,
+                                      height: 50,
+                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                      decoration: ShapeDecoration(
+                                        color: const Color(0xFFF49069),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(50),
+                                        ),
                                       ),
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        'CREATE ACCOUNT',
-                                        style: TextStyle(
-                                          color: const Color(0xFF9D3B29),
-                                          fontSize: 16,
-                                          fontFamily: 'Kantumruy Pro',
-                                          fontWeight: FontWeight.w700,
+                                      child: Center(
+                                        child: Text(
+                                          'CREATE ACCOUNT',
+                                          style: TextStyle(
+                                            color: const Color(0xFF9D3B29),
+                                            fontSize: 16,
+                                            fontFamily: 'Kantumruy Pro',
+                                            fontWeight: FontWeight.w700,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -568,7 +582,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                         decoration: TextDecoration.underline,
                                         decorationColor: const Color(0xFFDF6149),
                                       ),
-                                      recognizer: _signInRecognizer, // Add tap recognizer
+                                      recognizer: _signInRecognizer,
                                     ),
                                   ],
                                 ),
