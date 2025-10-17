@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:yum_plan/screens/planner/planner_screen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -22,6 +23,10 @@ class _HomePageState extends State<HomePage> {
       case 0:
         break;
       case 1:
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const PlannerScreen()),
+        );
         break;
       case 2:
         break;
@@ -192,7 +197,7 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
                             Text(
-                              '1540/2000 kcal',
+                              '0/0 kcal',
                               style: TextStyle(
                                 color: const Color(0xFF708240),
                                 fontSize: 18,
@@ -214,7 +219,7 @@ class _HomePageState extends State<HomePage> {
                               child: Row(
                                 children: [
                                   Container(
-                                    width: 275,
+                                    width: 0,
                                     height: 23,
                                     decoration: ShapeDecoration(
                                       color: const Color(0xFFFEDC7B),
@@ -230,206 +235,17 @@ class _HomePageState extends State<HomePage> {
                         ),
                         const SizedBox(height: 30),
                         Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '08:30',
-                                  style: TextStyle(
-                                    color: const Color(0xFF8A8A8A),
-                                    fontSize: 16,
-                                    fontFamily: 'DM Mono',
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                Container(
-                                  width: 265,
-                                  height: 65,
-                                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
-                                  decoration: ShapeDecoration(
-                                    color: const Color(0x2BDF6149),
-                                    shape: RoundedRectangleBorder(
-                                      side: BorderSide(
-                                        width: 1,
-                                        color: const Color(0x59DF6149),
-                                      ),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        width: 54,
-                                        height: 54,
-                                        decoration: ShapeDecoration(
-                                          color: const Color(0xFFDF6149),
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 21),
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Eggs with tomatoes',
-                                            style: TextStyle(
-                                              color: const Color(0xFF981800),
-                                              fontSize: 16,
-                                              fontFamily: 'Kantumruy Pro',
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                          Text(
-                                            'Breakfast | 180 kcal',
-                                            style: TextStyle(
-                                              color: const Color(0xFFF49069),
-                                              fontSize: 14,
-                                              fontFamily: 'Kantumruy Pro',
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '12:00',
-                                  style: TextStyle(
-                                    color: const Color(0xFF8A8A8A),
-                                    fontSize: 16,
-                                    fontFamily: 'DM Mono',
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                Container(
-                                  width: 265,
-                                  height: 65,
-                                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
-                                  decoration: ShapeDecoration(
-                                    color: const Color(0x2BDF6149),
-                                    shape: RoundedRectangleBorder(
-                                      side: BorderSide(
-                                        width: 1,
-                                        color: const Color(0x59DF6149),
-                                      ),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        width: 54,
-                                        height: 54,
-                                        decoration: ShapeDecoration(
-                                          color: const Color(0xFFDF6149),
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 21),
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Pizza rolls',
-                                            style: TextStyle(
-                                              color: const Color(0xFF981800),
-                                              fontSize: 16,
-                                              fontFamily: 'Kantumruy Pro',
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                          Text(
-                                            'Snack | 250 kcal',
-                                            style: TextStyle(
-                                              color: const Color(0xFFF49069),
-                                              fontSize: 14,
-                                              fontFamily: 'Kantumruy Pro',
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '18:00',
-                                  style: TextStyle(
-                                    color: const Color(0xFF8A8A8A),
-                                    fontSize: 16,
-                                    fontFamily: 'DM Mono',
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                Container(
-                                  width: 265,
-                                  height: 65,
-                                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
-                                  decoration: ShapeDecoration(
-                                    color: const Color(0x2BDF6149),
-                                    shape: RoundedRectangleBorder(
-                                      side: BorderSide(
-                                        width: 1,
-                                        color: const Color(0x59DF6149),
-                                      ),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        width: 54,
-                                        height: 54,
-                                        decoration: ShapeDecoration(
-                                          color: const Color(0xFFDF6149),
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 21),
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Cinnamon',
-                                            style: TextStyle(
-                                              color: const Color(0xFF981800),
-                                              fontSize: 16,
-                                              fontFamily: 'Kantumruy Pro',
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                          Text(
-                                            'Snack | 274 kcal',
-                                            style: TextStyle(
-                                              color: const Color(0xFFF49069),
-                                              fontSize: 14,
-                                              fontFamily: 'Kantumruy Pro',
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
+                            Text(
+                              'No meals planned',
+                              style: TextStyle(
+                                color: const Color(0xFF981800),
+                                fontSize: 16,
+                                fontFamily: 'Kantumruy Pro',
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ],
                         ),
