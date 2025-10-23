@@ -9,6 +9,9 @@ class SignUpScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return ChangeNotifierProvider<SignUpViewModel>(
       create: (_) => SignUpViewModel(),
       child: Consumer<SignUpViewModel>(
@@ -17,396 +20,370 @@ class SignUpScreen extends StatelessWidget {
             backgroundColor: const Color(0xFF708240),
             body: Center(
               child: SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 412,
-                      height: 892,
-                      clipBehavior: Clip.antiAlias,
-                      decoration: BoxDecoration(color: const Color(0xFF708240)),
-                      child: Stack(
-                        children: [
-                          Positioned(
-                            left: -234,
-                            top: 334,
-                            child: Container(
-                              width: 621,
-                              height: 619,
-                              decoration: ShapeDecoration(
-                                color: const Color(0xFFFFFBF0),
-                                shape: OvalBorder(),
+                child: SizedBox(
+                  height: screenHeight,
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        left: -screenWidth * 0.57,
+                        top: screenHeight * 0.37,
+                        child: Container(
+                          width: screenWidth * 1.51,
+                          height: screenHeight * 0.69,
+                          decoration: ShapeDecoration(
+                            color: const Color(0xFFFFFBF0),
+                            shape: OvalBorder(),
+                          ),
+                        ),
+                      ),
+
+                      Padding(
+                        padding: EdgeInsets.only(top: screenHeight * 0.04),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.053),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Positioned(
+                                left: screenWidth * 0.25,
+                                top: -screenHeight * 0.016,
+                                child: Container(
+                                  width: screenWidth * 0.49,
+                                  height: screenWidth * 0.45,
+                                  clipBehavior: Clip.antiAlias,
+                                  decoration: const BoxDecoration(),
+                                  child: SvgPicture.asset('assets/images/logo_yp.svg'),
+                                ),
                               ),
-                            ),
-                          ),
-                          Positioned(
-                            left: 104,
-                            top: -14,
-                            child: Container(
-                              width: 200,
-                              height: 200,
-                              clipBehavior: Clip.antiAlias,
-                              decoration: BoxDecoration(),
-                              child: SvgPicture.asset('assets/images/logo_yp.svg'),
-                            ),
-                          ),
-                          Positioned(
-                            left: 22,
-                            top: 174,
-                            child: Container(
-                              width: 367,
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Container(
-                                    width: double.infinity,
-                                    padding: const EdgeInsets.symmetric(horizontal: 19, vertical: 27),
-                                    decoration: ShapeDecoration(
-                                      color: const Color(0x4CE7FCB1),
-                                      shape: RoundedRectangleBorder(
-                                        side: BorderSide(
-                                          width: 1,
-                                          color: const Color(0xB2708240),
-                                        ),
-                                        borderRadius: BorderRadius.circular(27),
-                                      ),
-                                      shadows: [
-                                        BoxShadow(
-                                          color: Color(0x440D240B),
-                                          blurRadius: 17.10,
-                                          offset: Offset(0, 6),
-                                          spreadRadius: 0,
-                                        )
-                                      ],
+                              Container(
+                                width: double.infinity,
+                                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.046, vertical: screenHeight * 0.02),
+                                decoration: ShapeDecoration(
+                                  color: const Color(0x4CE7FCB1),
+                                  shape: RoundedRectangleBorder(
+                                    side: const BorderSide(
+                                      width: 1,
+                                      color: Color(0xB2708240),
                                     ),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment: MainAxisAlignment.start,
+                                    borderRadius: BorderRadius.circular(27),
+                                  ),
+                                  shadows: const [
+                                    BoxShadow(
+                                      color: Color(0x440D240B),
+                                      blurRadius: 17.10,
+                                      offset: Offset(0, 3),
+                                      spreadRadius: 0,
+                                    )
+                                  ],
+                                ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              'Name',
-                                              style: TextStyle(
-                                                color: const Color(0xFF323C15),
-                                                fontSize: 16,
-                                                fontFamily: 'Kantumruy Pro',
-                                                fontWeight: FontWeight.w300,
+                                        Text(
+                                          'Name',
+                                          style: TextStyle(
+                                            color: const Color(0xFF323C15),
+                                            fontSize: screenWidth * 0.039,
+                                            fontFamily: 'Kantumruy Pro',
+                                            fontWeight: FontWeight.w300,
+                                          ),
+                                        ),
+                                        SizedBox(height: screenHeight * 0.00185),
+                                        Container(
+                                          height: screenWidth * 0.121,
+                                          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.027, vertical: screenHeight * 0.011),
+                                          decoration: ShapeDecoration(
+                                            color: const Color(0xFFF7F7F7),
+                                            shape: RoundedRectangleBorder(
+                                              side: const BorderSide(
+                                                width: 1,
+                                                color: Color(0x59DF6149),
                                               ),
+                                              borderRadius: BorderRadius.circular(14),
                                             ),
-                                            SizedBox(height: 8),
-                                            Container(
-                                              height: 50,
-                                              padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 10),
-                                              decoration: ShapeDecoration(
-                                                color: const Color(0xFFF7F7F7),
-                                                shape: RoundedRectangleBorder(
-                                                  side: BorderSide(
-                                                    width: 1,
-                                                    color: const Color(0x59DF6149),
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              SvgPicture.asset(
+                                                'assets/images/user.svg',
+                                                width: screenWidth * 0.049,
+                                                height: screenWidth * 0.049,
+                                              ),
+                                              SizedBox(width: screenWidth * 0.044),
+                                              Expanded(
+                                                child: TextField(
+                                                  controller: vm.nameController,
+                                                  style: TextStyle(
+                                                    color: const Color(0xFF000000),
+                                                    fontSize: screenWidth * 0.036,
+                                                    fontFamily: 'Kantumruy Pro',
+                                                    fontWeight: FontWeight.w400,
                                                   ),
-                                                  borderRadius: BorderRadius.circular(14),
+                                                  decoration: InputDecoration(
+                                                    hintText: 'enter your full name ',
+                                                    hintStyle: TextStyle(
+                                                      color: const Color(0xFF959595),
+                                                      fontSize: screenWidth * 0.036,
+                                                      fontFamily: 'Kantumruy Pro',
+                                                      fontWeight: FontWeight.w400,
+                                                    ),
+                                                    suffixText: '*',
+                                                    suffixStyle: TextStyle(
+                                                      color: const Color(0xFF981800),
+                                                      fontSize: screenWidth * 0.036,
+                                                      fontFamily: 'Kantumruy Pro',
+                                                      fontWeight: FontWeight.w400,
+                                                    ),
+                                                    border: InputBorder.none,
+                                                    contentPadding: EdgeInsets.zero,
+                                                    isDense: true,
+                                                  ),
                                                 ),
                                               ),
-                                              child: Row(
-                                                children: [
-                                                  SvgPicture.asset(
-                                                    'assets/images/user.svg',
-                                                    width: 20,
-                                                    height: 20,
-                                                  ),
-                                                  SizedBox(width: 18),
-                                                  Expanded(
-                                                    child: TextField(
-                                                      controller: vm.nameController,
-                                                      style: const TextStyle(
-                                                        color: Color(0xFF000000),
-                                                        fontSize: 15,
-                                                        fontFamily: 'Kantumruy Pro',
-                                                        fontWeight: FontWeight.w400,
-                                                      ),
-                                                      decoration: InputDecoration(
-                                                        hintText: 'enter your full name ',
-                                                        hintStyle: TextStyle(
-                                                          color: const Color(0xFF959595),
-                                                          fontSize: 15,
-                                                          fontFamily: 'Kantumruy Pro',
-                                                          fontWeight: FontWeight.w400,
-                                                        ),
-                                                        suffixText: '*',
-                                                        suffixStyle: TextStyle(
-                                                          color: const Color(0xFF981800),
-                                                          fontSize: 15,
-                                                          fontFamily: 'Kantumruy Pro',
-                                                          fontWeight: FontWeight.w400,
-                                                        ),
-                                                        border: InputBorder.none,
-                                                        contentPadding: EdgeInsets.zero,
-                                                        isDense: true,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
-                                        SizedBox(height: 16),
-                                        Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              'Email',
-                                              style: TextStyle(
-                                                color: const Color(0xFF323C15),
-                                                fontSize: 16,
-                                                fontFamily: 'Kantumruy Pro',
-                                                fontWeight: FontWeight.w300,
+                                        SizedBox(height: screenHeight * 0.018),
+                                        Text(
+                                          'Email',
+                                          style: TextStyle(
+                                            color: const Color(0xFF323C15),
+                                            fontSize: screenWidth * 0.039,
+                                            fontFamily: 'Kantumruy Pro',
+                                            fontWeight: FontWeight.w300,
+                                          ),
+                                        ),
+                                        SizedBox(height: screenHeight * 0.00185),
+                                        Container(
+                                          height: screenWidth * 0.121,
+                                          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.027, vertical: screenHeight * 0.011),
+                                          decoration: ShapeDecoration(
+                                            color: const Color(0xFFF7F7F7),
+                                            shape: RoundedRectangleBorder(
+                                              side: const BorderSide(
+                                                width: 1,
+                                                color: Color(0x59DF6149),
                                               ),
+                                              borderRadius: BorderRadius.circular(14),
                                             ),
-                                            SizedBox(height: 8),
-                                            Container(
-                                              height: 50,
-                                              padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 10),
-                                              decoration: ShapeDecoration(
-                                                color: const Color(0xFFF7F7F7),
-                                                shape: RoundedRectangleBorder(
-                                                  side: BorderSide(
-                                                    width: 1,
-                                                    color: const Color(0x59DF6149),
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              SvgPicture.asset(
+                                                'assets/images/mail.svg',
+                                                width: screenWidth * 0.049,
+                                                height: screenWidth * 0.049,
+                                              ),
+                                              SizedBox(width: screenWidth * 0.044),
+                                              Expanded(
+                                                child: TextField(
+                                                  controller: vm.emailController,
+                                                  style: TextStyle(
+                                                    color: const Color(0xFF000000),
+                                                    fontSize: screenWidth * 0.036,
+                                                    fontFamily: 'Kantumruy Pro',
+                                                    fontWeight: FontWeight.w400,
                                                   ),
-                                                  borderRadius: BorderRadius.circular(14),
+                                                  decoration: InputDecoration(
+                                                    hintText: '@gmail.com ',
+                                                    hintStyle: TextStyle(
+                                                      color: const Color(0xFF959595),
+                                                      fontSize: screenWidth * 0.036,
+                                                      fontFamily: 'Kantumruy Pro',
+                                                      fontWeight: FontWeight.w400,
+                                                    ),
+                                                    suffixText: '*',
+                                                    suffixStyle: TextStyle(
+                                                      color: const Color(0xFF981800),
+                                                      fontSize: screenWidth * 0.036,
+                                                      fontFamily: 'Kantumruy Pro',
+                                                      fontWeight: FontWeight.w400,
+                                                    ),
+                                                    border: InputBorder.none,
+                                                    contentPadding: EdgeInsets.zero,
+                                                    isDense: true,
+                                                  ),
                                                 ),
                                               ),
-                                              child: Row(
-                                                children: [
-                                                  SvgPicture.asset(
-                                                    'assets/images/mail.svg',
-                                                    width: 20,
-                                                    height: 20,
-                                                  ),
-                                                  SizedBox(width: 18),
-                                                  Expanded(
-                                                    child: TextField(
-                                                      controller: vm.emailController,
-                                                      style: const TextStyle(
-                                                        color: Color(0xFF000000),
-                                                        fontSize: 15,
-                                                        fontFamily: 'Kantumruy Pro',
-                                                        fontWeight: FontWeight.w400,
-                                                      ),
-                                                      decoration: InputDecoration(
-                                                        hintText: '@gmail.com ',
-                                                        hintStyle: TextStyle(
-                                                          color: const Color(0xFF959595),
-                                                          fontSize: 15,
-                                                          fontFamily: 'Kantumruy Pro',
-                                                          fontWeight: FontWeight.w400,
-                                                        ),
-                                                        suffixText: '*',
-                                                        suffixStyle: TextStyle(
-                                                          color: const Color(0xFF981800),
-                                                          fontSize: 15,
-                                                          fontFamily: 'Kantumruy Pro',
-                                                          fontWeight: FontWeight.w400,
-                                                        ),
-                                                        border: InputBorder.none,
-                                                        contentPadding: EdgeInsets.zero,
-                                                        isDense: true,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
-                                        SizedBox(height: 16),
-                                        Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              'Password',
-                                              style: TextStyle(
-                                                color: const Color(0xFF323C15),
-                                                fontSize: 16,
-                                                fontFamily: 'Kantumruy Pro',
-                                                fontWeight: FontWeight.w300,
+                                        SizedBox(height: screenHeight * 0.018),
+                                        Text(
+                                          'Password',
+                                          style: TextStyle(
+                                            color: const Color(0xFF323C15),
+                                            fontSize: screenWidth * 0.039,
+                                            fontFamily: 'Kantumruy Pro',
+                                            fontWeight: FontWeight.w300,
+                                          ),
+                                        ),
+                                        SizedBox(height: screenHeight * 0.00185),
+                                        Container(
+                                          height: screenWidth * 0.121,
+                                          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.027, vertical: screenHeight * 0.011),
+                                          decoration: ShapeDecoration(
+                                            color: const Color(0xFFF7F7F7),
+                                            shape: RoundedRectangleBorder(
+                                              side: const BorderSide(
+                                                width: 1,
+                                                color: Color(0x59DF6149),
                                               ),
+                                              borderRadius: BorderRadius.circular(14),
                                             ),
-                                            SizedBox(height: 8),
-                                            Container(
-                                              height: 50,
-                                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                                              decoration: ShapeDecoration(
-                                                color: const Color(0xFFF7F7F7),
-                                                shape: RoundedRectangleBorder(
-                                                  side: BorderSide(
-                                                    width: 1,
-                                                    color: const Color(0x59DF6149),
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              SvgPicture.asset(
+                                                'assets/images/lock.svg',
+                                                width: screenWidth * 0.049,
+                                                height: screenWidth * 0.049,
+                                              ),
+                                              SizedBox(width: screenWidth * 0.044),
+                                              Expanded(
+                                                child: TextField(
+                                                  controller: vm.passwordController,
+                                                  obscureText: vm.obscurePassword,
+                                                  style: TextStyle(
+                                                    color: const Color(0xFF000000),
+                                                    fontSize: screenWidth * 0.036,
+                                                    fontFamily: 'Kantumruy Pro',
+                                                    fontWeight: FontWeight.w400,
                                                   ),
-                                                  borderRadius: BorderRadius.circular(14),
+                                                  decoration: InputDecoration(
+                                                    hintText: 'enter your password ',
+                                                    hintStyle: TextStyle(
+                                                      color: const Color(0xFF959595),
+                                                      fontSize: screenWidth * 0.036,
+                                                      fontFamily: 'Kantumruy Pro',
+                                                      fontWeight: FontWeight.w400,
+                                                    ),
+                                                    suffixText: '*',
+                                                    suffixStyle: TextStyle(
+                                                      color: const Color(0xFF981800),
+                                                      fontSize: screenWidth * 0.036,
+                                                      fontFamily: 'Kantumruy Pro',
+                                                      fontWeight: FontWeight.w400,
+                                                    ),
+                                                    border: InputBorder.none,
+                                                    contentPadding: EdgeInsets.zero,
+                                                    isDense: true,
+                                                  ),
                                                 ),
                                               ),
-                                              child: Row(
-                                                children: [
-                                                  SvgPicture.asset(
-                                                    'assets/images/lock.svg',
-                                                    width: 20,
-                                                    height: 20,
+                                              SizedBox(width: screenWidth * 0.044),
+                                              GestureDetector(
+                                                onTap: vm.toggleObscurePassword,
+                                                child: Container(
+                                                  width: screenWidth * 0.053,
+                                                  height: screenWidth * 0.049,
+                                                  clipBehavior: Clip.antiAlias,
+                                                  decoration: const BoxDecoration(),
+                                                  child: SvgPicture.asset(
+                                                    vm.obscurePassword ? 'assets/images/eye_off.svg' : 'assets/images/eye_on.svg',
                                                   ),
-                                                  SizedBox(width: 18),
-                                                  Expanded(
-                                                    child: TextField(
-                                                      controller: vm.passwordController,
-                                                      obscureText: vm.obscurePassword,
-                                                      style: const TextStyle(
-                                                        color: Color(0xFF000000),
-                                                        fontSize: 15,
-                                                        fontFamily: 'Kantumruy Pro',
-                                                        fontWeight: FontWeight.w400,
-                                                      ),
-                                                      decoration: InputDecoration(
-                                                        hintText: 'enter a password ',
-                                                        hintStyle: TextStyle(
-                                                          color: const Color(0xFF959595),
-                                                          fontSize: 15,
-                                                          fontFamily: 'Kantumruy Pro',
-                                                          fontWeight: FontWeight.w400,
-                                                        ),
-                                                        suffixText: '*',
-                                                        suffixStyle: TextStyle(
-                                                          color: const Color(0xFF981800),
-                                                          fontSize: 15,
-                                                          fontFamily: 'Kantumruy Pro',
-                                                          fontWeight: FontWeight.w400,
-                                                        ),
-                                                        border: InputBorder.none,
-                                                        contentPadding: EdgeInsets.zero,
-                                                        isDense: true,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  SizedBox(width: 18),
-                                                  GestureDetector(
-                                                    onTap: vm.toggleObscurePassword,
-                                                    child: SvgPicture.asset(
-                                                      vm.obscurePassword ? 'assets/images/eye_off.svg' : 'assets/images/eye_on.svg',
-                                                      width: 22,
-                                                      height: 20,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            SizedBox(height: 8),
-                                            Text(
-                                              'use 8+ characters with a mix of letters and numbers ',
-                                              style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 12,
-                                                fontFamily: 'Kantumruy Pro',
-                                                fontWeight: FontWeight.w200,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        SizedBox(height: 16),
-                                        Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              'Confirm Password',
-                                              style: TextStyle(
-                                                color: const Color(0xFF323C15),
-                                                fontSize: 16,
-                                                fontFamily: 'Kantumruy Pro',
-                                                fontWeight: FontWeight.w300,
-                                              ),
-                                            ),
-                                            SizedBox(height: 8),
-                                            Container(
-                                              height: 50,
-                                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                                              decoration: ShapeDecoration(
-                                                color: const Color(0xFFF7F7F7),
-                                                shape: RoundedRectangleBorder(
-                                                  side: BorderSide(
-                                                    width: 1,
-                                                    color: const Color(0x59DF6149),
-                                                  ),
-                                                  borderRadius: BorderRadius.circular(14),
                                                 ),
                                               ),
-                                              child: Row(
-                                                children: [
-                                                  SvgPicture.asset(
-                                                    'assets/images/lock.svg',
-                                                    width: 20,
-                                                    height: 20,
-                                                  ),
-                                                  SizedBox(width: 18),
-                                                  Expanded(
-                                                    child: TextField(
-                                                      controller: vm.confirmPasswordController,
-                                                      obscureText: vm.obscureConfirmPassword,
-                                                      style: const TextStyle(
-                                                        color: Color(0xFF000000),
-                                                        fontSize: 15,
-                                                        fontFamily: 'Kantumruy Pro',
-                                                        fontWeight: FontWeight.w400,
-                                                      ),
-                                                      decoration: InputDecoration(
-                                                        hintText: 'enter a password ',
-                                                        hintStyle: TextStyle(
-                                                          color: const Color(0xFF959595),
-                                                          fontSize: 15,
-                                                          fontFamily: 'Kantumruy Pro',
-                                                          fontWeight: FontWeight.w400,
-                                                        ),
-                                                        suffixText: '*',
-                                                        suffixStyle: TextStyle(
-                                                          color: const Color(0xFF981800),
-                                                          fontSize: 15,
-                                                          fontFamily: 'Kantumruy Pro',
-                                                          fontWeight: FontWeight.w400,
-                                                        ),
-                                                        border: InputBorder.none,
-                                                        contentPadding: EdgeInsets.zero,
-                                                        isDense: true,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  SizedBox(width: 18),
-                                                  GestureDetector(
-                                                    onTap: vm.toggleObscureConfirmPassword,
-                                                    child: SvgPicture.asset(
-                                                      vm.obscureConfirmPassword ? 'assets/images/eye_off.svg' : 'assets/images/eye_on.svg',
-                                                      width: 22,
-                                                      height: 20,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
-                                        SizedBox(height: 16),
+                                        SizedBox(height: screenHeight * 0.018),
+                                        Text(
+                                          'Confirm Password',
+                                          style: TextStyle(
+                                            color: const Color(0xFF323C15),
+                                            fontSize: screenWidth * 0.039,
+                                            fontFamily: 'Kantumruy Pro',
+                                            fontWeight: FontWeight.w300,
+                                          ),
+                                        ),
+                                        SizedBox(height: screenHeight * 0.00185),
+                                        Container(
+                                          height: screenWidth * 0.121,
+                                          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.027, vertical: screenHeight * 0.011),
+                                          decoration: ShapeDecoration(
+                                            color: const Color(0xFFF7F7F7),
+                                            shape: RoundedRectangleBorder(
+                                              side: const BorderSide(
+                                                width: 1,
+                                                color: Color(0x59DF6149),
+                                              ),
+                                              borderRadius: BorderRadius.circular(14),
+                                            ),
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              SvgPicture.asset(
+                                                'assets/images/lock.svg',
+                                                width: screenWidth * 0.049,
+                                                height: screenWidth * 0.049,
+                                              ),
+                                              SizedBox(width: screenWidth * 0.044),
+                                              Expanded(
+                                                child: TextField(
+                                                  controller: vm.confirmPasswordController,
+                                                  obscureText: vm.obscureConfirmPassword,
+                                                  style: TextStyle(
+                                                    color: const Color(0xFF000000),
+                                                    fontSize: screenWidth * 0.036,
+                                                    fontFamily: 'Kantumruy Pro',
+                                                    fontWeight: FontWeight.w400,
+                                                  ),
+                                                  decoration: InputDecoration(
+                                                    hintText: 'confirm your password ',
+                                                    hintStyle: TextStyle(
+                                                      color: const Color(0xFF959595),
+                                                      fontSize: screenWidth * 0.036,
+                                                      fontFamily: 'Kantumruy Pro',
+                                                      fontWeight: FontWeight.w400,
+                                                    ),
+                                                    suffixText: '*',
+                                                    suffixStyle: TextStyle(
+                                                      color: const Color(0xFF981800),
+                                                      fontSize: screenWidth * 0.036,
+                                                      fontFamily: 'Kantumruy Pro',
+                                                      fontWeight: FontWeight.w400,
+                                                    ),
+                                                    border: InputBorder.none,
+                                                    contentPadding: EdgeInsets.zero,
+                                                    isDense: true,
+                                                  ),
+                                                ),
+                                              ),
+                                              SizedBox(width: screenWidth * 0.044),
+                                              GestureDetector(
+                                                onTap: vm.toggleObscureConfirmPassword,
+                                                child: Container(
+                                                  width: screenWidth * 0.053,
+                                                  height: screenWidth * 0.049,
+                                                  clipBehavior: Clip.antiAlias,
+                                                  decoration: const BoxDecoration(),
+                                                  child: SvgPicture.asset(
+                                                    vm.obscureConfirmPassword ? 'assets/images/eye_off.svg' : 'assets/images/eye_on.svg',
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        SizedBox(height: screenHeight * 0.018),
                                         Row(
-                                          crossAxisAlignment: CrossAxisAlignment.center,
                                           children: [
                                             Checkbox(
                                               value: vm.isChecked,
                                               onChanged: (bool? value) {
                                                 vm.toggleChecked(value ?? false);
                                               },
-                                              side: BorderSide(
+                                              side: const BorderSide(
                                                 width: 2,
-                                                color: const Color(0xFFABBA72),
+                                                color: Color(0xFFABBA72),
                                               ),
                                               shape: RoundedRectangleBorder(
                                                 borderRadius: BorderRadius.circular(2),
@@ -423,7 +400,7 @@ class SignUpScreen extends StatelessWidget {
                                                       text: 'I agree to ',
                                                       style: TextStyle(
                                                         color: const Color(0xFF708240),
-                                                        fontSize: 14,
+                                                        fontSize: screenWidth * 0.034,
                                                         fontFamily: 'Kantumruy Pro',
                                                         fontWeight: FontWeight.w400,
                                                       ),
@@ -432,7 +409,7 @@ class SignUpScreen extends StatelessWidget {
                                                       text: 'Terms and Privacy',
                                                       style: TextStyle(
                                                         color: const Color(0xFF708240),
-                                                        fontSize: 14,
+                                                        fontSize: screenWidth * 0.034,
                                                         fontFamily: 'Kantumruy Pro',
                                                         fontWeight: FontWeight.w400,
                                                         decoration: TextDecoration.underline,
@@ -443,7 +420,7 @@ class SignUpScreen extends StatelessWidget {
                                                       text: ' ',
                                                       style: TextStyle(
                                                         color: const Color(0xFF708240),
-                                                        fontSize: 14,
+                                                        fontSize: screenWidth * 0.034,
                                                         fontFamily: 'Kantumruy Pro',
                                                         fontWeight: FontWeight.w400,
                                                       ),
@@ -452,7 +429,7 @@ class SignUpScreen extends StatelessWidget {
                                                       text: '*',
                                                       style: TextStyle(
                                                         color: const Color(0xFF981800),
-                                                        fontSize: 14,
+                                                        fontSize: screenWidth * 0.034,
                                                         fontFamily: 'Kantumruy Pro',
                                                         fontWeight: FontWeight.w400,
                                                       ),
@@ -463,13 +440,13 @@ class SignUpScreen extends StatelessWidget {
                                             ),
                                           ],
                                         ),
-                                        SizedBox(height: 16),
+                                        SizedBox(height: screenHeight * 0.018),
                                         GestureDetector(
                                           onTap: () => vm.createAccount(context),
                                           child: Container(
                                             width: double.infinity,
-                                            height: 50,
-                                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                            height: screenWidth * 0.121,
+                                            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.029, vertical: screenHeight * 0.011),
                                             decoration: ShapeDecoration(
                                               color: const Color(0xFFF49069),
                                               shape: RoundedRectangleBorder(
@@ -481,7 +458,7 @@ class SignUpScreen extends StatelessWidget {
                                                 'CREATE ACCOUNT',
                                                 style: TextStyle(
                                                   color: const Color(0xFF9D3B29),
-                                                  fontSize: 16,
+                                                  fontSize: screenWidth * 0.039,
                                                   fontFamily: 'Kantumruy Pro',
                                                   fontWeight: FontWeight.w700,
                                                 ),
@@ -491,49 +468,49 @@ class SignUpScreen extends StatelessWidget {
                                         ),
                                       ],
                                     ),
-                                  ),
-                                  SizedBox(height: 34),
-                                  SizedBox(
-                                    width: 367,
-                                    height: 25,
-                                    child: Text.rich(
-                                      TextSpan(
-                                        children: [
-                                          TextSpan(
-                                            text: 'Already have an account? ',
-                                            style: TextStyle(
-                                              color: const Color(0xFF708240),
-                                              fontSize: 15,
-                                              fontFamily: 'Kantumruy Pro',
-                                              fontWeight: FontWeight.w400,
-                                            ),
-                                          ),
-                                          TextSpan(
-                                            text: 'Sign In',
-                                            style: TextStyle(
-                                              color: const Color(0xFFDF6149),
-                                              fontSize: 15,
-                                              fontFamily: 'Kantumruy Pro',
-                                              fontWeight: FontWeight.w700,
-                                              decoration: TextDecoration.underline,
-                                              decorationColor: const Color(0xFFDF6149),
-                                            ),
-                                            recognizer: TapGestureRecognizer()
-                                              ..onTap = () => vm.navigateToSignIn(context),
-                                          ),
-                                        ],
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
+                              SizedBox(height: screenHeight * 0.038),
+                              SizedBox(
+                                width: double.infinity,
+                                height: screenHeight * 0.028,
+                                child: Text.rich(
+                                  TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: 'Already have an account? ',
+                                        style: TextStyle(
+                                          color: const Color(0xFF708240),
+                                          fontSize: screenWidth * 0.036,
+                                          fontFamily: 'Kantumruy Pro',
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      ),
+                                      TextSpan(
+                                        text: 'Sign In',
+                                        style: TextStyle(
+                                          color: const Color(0xFFDF6149),
+                                          fontSize: screenWidth * 0.036,
+                                          fontFamily: 'Kantumruy Pro',
+                                          fontWeight: FontWeight.w700,
+                                          decoration: TextDecoration.underline,
+                                          decorationColor: const Color(0xFFDF6149),
+                                        ),
+                                        recognizer: TapGestureRecognizer()
+                                          ..onTap = () => vm.navigateToSignIn(context),
+                                      ),
+                                    ],
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

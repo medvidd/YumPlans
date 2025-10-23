@@ -42,11 +42,6 @@ class RecipesViewModel extends ChangeNotifier {
     }
   }
 
-  void addRecipe() {
-    print('Add recipe clicked');
-    notifyListeners();
-  }
-
   @override
   void dispose() {
     searchController.dispose();

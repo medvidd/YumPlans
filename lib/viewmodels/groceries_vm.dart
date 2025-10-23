@@ -42,7 +42,6 @@ class GroceriesViewModel extends ChangeNotifier {
         );
         break;
       case 2:
-      // Вже на цьому екрані
         break;
       case 3:
         Navigator.pushReplacement(

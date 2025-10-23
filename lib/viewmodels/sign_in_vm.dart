@@ -15,7 +15,6 @@ class SignInViewModel extends ChangeNotifier {
 
   void signIn(BuildContext context) {
     if (emailController.text.isNotEmpty && passwordController.text.isNotEmpty) {
-      // Тут буде реальна логіка авторизації (наприклад, з Firebase)
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const HomePageScreen()),

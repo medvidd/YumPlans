@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../views/home_page.dart';
-import '../views/auth/sign_in_v.dart';
+import '/views/home_page.dart';
+import '/views/auth/sign_in_v.dart';
 
 class SignUpViewModel extends ChangeNotifier {
   final TextEditingController nameController = TextEditingController();
@@ -34,7 +34,6 @@ class SignUpViewModel extends ChangeNotifier {
         confirmPasswordController.text.isNotEmpty &&
         passwordController.text == confirmPasswordController.text &&
         isChecked) {
-      // Тут буде реальна логіка створення акаунту (наприклад, з Firebase)
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const HomePageScreen()),

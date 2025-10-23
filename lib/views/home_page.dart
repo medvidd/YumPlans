@@ -1,97 +1,253 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
-import '../viewmodels/home_page_vm.dart';
+import '/viewmodels/home_page_vm.dart';
+import '/widgets/bottom_nav_w.dart';
 
 class HomePageScreen extends StatelessWidget {
   const HomePageScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery
+        .of(context)
+        .size
+        .width;
+    final screenHeight = MediaQuery
+        .of(context)
+        .size
+        .height;
+
     return ChangeNotifierProvider<HomePageViewModel>(
       create: (_) => HomePageViewModel(),
       child: Consumer<HomePageViewModel>(
         builder: (context, vm, child) {
           return Scaffold(
             backgroundColor: const Color(0xFFFFFBF0),
-            body: Stack(
-              children: [
-                Positioned(
-                  left: -105,
-                  top: -420,
-                  child: Container(
-                    width: 621,
-                    height: 636,
-                    decoration: const ShapeDecoration(
-                      color: Color(0xFFABBA72),
-                      shape: OvalBorder(),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  left: 0,
-                  top: 50,
-                  right: 0,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Welcome back!',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: const Color(0xFFFFFBF0),
-                          fontSize: 20,
-                          fontFamily: 'Kantumruy Pro',
-                          fontWeight: FontWeight.w700,
+            bottomNavigationBar: BottomNavWidget(
+              selectedIndex: vm.selectedIndex,
+              onItemSelected: (index) {
+                vm.onItemTapped(context, index);
+              },
+            ),
+            body: SafeArea(
+
+              child: SizedBox(
+                height: screenHeight,
+                child: Stack(
+                  children: [
+                    Positioned(
+                      left: -screenWidth * 0.25,
+                      top: -screenHeight * 0.47,
+                      child: Container(
+                        width: screenWidth * 1.5,
+                        height: screenHeight * 0.71,
+                        decoration: const ShapeDecoration(
+                          color: Color(0xFFABBA72),
+                          shape: OvalBorder(),
                         ),
                       ),
-                      const SizedBox(height: 0),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                    ),
+
+                    Padding(
+                      padding: EdgeInsets.only(top: screenHeight * 0.06),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          SvgPicture.asset(
-                            'assets/images/logo_plate.svg',
-                            width: 90,
-                            height: 90,
-                          ),
-                          const SizedBox(width: 11),
-                          SizedBox(
-                            height: 100,
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: screenWidth * 0.05),
                             child: Column(
-                              mainAxisSize: MainAxisSize.max,
                               children: [
-                                SizedBox(
-                                  width: 161.18,
-                                  height: 50,
-                                  child: Text(
-                                    'TODAY',
-                                    textAlign: TextAlign.center,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      color: const Color(0xFF4B572B),
-                                      fontSize: 48,
-                                      fontFamily: 'Kantumruy Pro',
-                                      fontWeight: FontWeight.w700,
-                                    ),
+                                Text(
+                                  'Welcome back!',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: const Color(0xFFFFFBF0),
+                                    fontSize: screenWidth * 0.050,
+                                    fontFamily: 'Kantumruy Pro',
+                                    fontWeight: FontWeight.w700,
                                   ),
                                 ),
                                 const SizedBox(height: 0),
-                                SizedBox(
-                                  width: 165.57,
-                                  height: null,
-                                  child: Text(
-                                    vm.formattedDate,
-                                    textAlign: TextAlign.center,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 32,
-                                      fontFamily: 'Fredoka',
-                                      fontWeight: FontWeight.w800,
-                                      letterSpacing: -0.56,
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SvgPicture.asset(
+                                      'assets/images/logo_plate.svg',
+                                      width: screenWidth * 0.20,
+                                      height: screenWidth * 0.20,
                                     ),
+                                    const SizedBox(width: 10),
+                                    SizedBox(
+                                      height: screenWidth * 0.25,
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.max,
+                                        children: [
+                                          SizedBox(
+                                            width: screenWidth * 0.39,
+                                            height: screenWidth * 0.12,
+                                            child: Text(
+                                              'TODAY',
+                                              textAlign: TextAlign.center,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                color: const Color(0xFF4B572B),
+                                                fontSize: screenWidth * 0.107,
+                                                fontFamily: 'Kantumruy Pro',
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 0),
+                                          SizedBox(
+                                            width: screenWidth * 0.40,
+                                            child: Text(
+                                              vm.formattedDate,
+                                              textAlign: TextAlign.center,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: screenWidth * 0.068,
+                                                fontFamily: 'Fredoka',
+                                                fontWeight: FontWeight.w800,
+                                                letterSpacing: -0.56,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 40),
+
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: screenWidth * 0.05),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    SvgPicture.asset(
+                                      'assets/images/clock.svg',
+                                      width: screenWidth * 0.048,
+                                      height: screenWidth * 0.048,
+                                      colorFilter: const ColorFilter.mode(
+                                        Color(0xFFDF6149),
+                                        BlendMode.srcIn,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 11),
+                                    Text(
+                                      'Planned meals',
+                                      style: TextStyle(
+                                        color: const Color(0xFFDF6149),
+                                        fontSize: screenWidth * 0.039,
+                                        fontFamily: 'Kantumruy Pro',
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Container(
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 17, vertical: 22),
+                                  decoration: ShapeDecoration(
+                                    color: const Color(0xFFFFFBF0),
+                                    shape: RoundedRectangleBorder(
+                                      side: const BorderSide(
+                                        width: 1,
+                                        color: Color(0x59DF6149),
+                                      ),
+                                      borderRadius: BorderRadius.circular(27),
+                                    ),
+                                  ),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment: CrossAxisAlignment
+                                        .start,
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment
+                                            .start,
+                                        children: [
+                                          Text(
+                                            'Consumed today',
+                                            style: TextStyle(
+                                              color: const Color(0xFFA37F1A),
+                                              fontSize: screenWidth * 0.048,
+                                              fontFamily: 'Kantumruy Pro',
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          Text(
+                                            '0/0 kcal',
+                                            style: TextStyle(
+                                              color: const Color(0xFF708240),
+                                              fontSize: screenWidth * 0.044,
+                                              fontFamily: 'Kantumruy Pro',
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Container(
+                                            width: double.infinity,
+                                            height: 28,
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 2, vertical: 5),
+                                            decoration: ShapeDecoration(
+                                              color: const Color(0x7AD9D9D9),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius
+                                                    .circular(40),
+                                              ),
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                Container(
+                                                  width: 0,
+                                                  height: 23,
+                                                  decoration: ShapeDecoration(
+                                                    color: const Color(
+                                                        0xFFFEDC7B),
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius: BorderRadius
+                                                          .circular(50),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 30),
+                                      Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment: CrossAxisAlignment
+                                            .center,
+                                        children: [
+                                          Text(
+                                            'No meals planned',
+                                            style: TextStyle(
+                                              color: const Color(0xFF981800),
+                                              fontSize: screenWidth * 0.039,
+                                              fontFamily: 'Kantumruy Pro',
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],
@@ -99,274 +255,11 @@ class HomePageScreen extends StatelessWidget {
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                ),
-                Positioned(
-                  left: 21,
-                  top: 250,
-                  child: Container(
-                    width: 370,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            SvgPicture.asset(
-                              'assets/images/clock.svg',
-                              width: 20,
-                              height: 20,
-                              colorFilter: const ColorFilter.mode(
-                                Color(0xFFDF6149),
-                                BlendMode.srcIn,
-                              ),
-                            ),
-                            const SizedBox(width: 11),
-                            Text(
-                              'Planned meals',
-                              style: TextStyle(
-                                color: const Color(0xFFDF6149),
-                                fontSize: 16,
-                                fontFamily: 'Kantumruy Pro',
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Container(
-                          width: 370,
-                          padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 22),
-                          decoration: ShapeDecoration(
-                            color: const Color(0xFFFFFBF0),
-                            shape: RoundedRectangleBorder(
-                              side: BorderSide(
-                                width: 1,
-                                color: const Color(0x59DF6149),
-                              ),
-                              borderRadius: BorderRadius.circular(27),
-                            ),
-                          ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Consumed today',
-                                    style: TextStyle(
-                                      color: const Color(0xFFA37F1A),
-                                      fontSize: 20,
-                                      fontFamily: 'Kantumruy Pro',
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    '0/0 kcal',
-                                    style: TextStyle(
-                                      color: const Color(0xFF708240),
-                                      fontSize: 18,
-                                      fontFamily: 'Kantumruy Pro',
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Container(
-                                    width: 329,
-                                    height: 28,
-                                    padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 5),
-                                    decoration: ShapeDecoration(
-                                      color: const Color(0x7AD9D9D9),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(40),
-                                      ),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                          width: 0,
-                                          height: 23,
-                                          decoration: ShapeDecoration(
-                                            color: const Color(0xFFFEDC7B),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(50),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 30),
-                              Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'No meals planned',
-                                    style: TextStyle(
-                                      color: const Color(0xFF981800),
-                                      fontSize: 16,
-                                      fontFamily: 'Kantumruy Pro',
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
                     ),
-                  ),
+                  ],
                 ),
-                Positioned(
-                  left: 0,
-                  top: 825,
-                  child: Container(
-                    width: 412,
-                    height: 67,
-                    padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 9),
-                    decoration: const BoxDecoration(color: Color(0xFFFFFBF0)),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        GestureDetector(
-                          onTap: () => vm.onItemTapped(context, 0),
-                          child: Container(
-                            width: 50,
-                            height: 50,
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            decoration: ShapeDecoration(
-                              color: vm.selectedIndex == 0 ? const Color(0xFFFEDC7B) : const Color(0xFFE9E9E9),
-                              shape: RoundedRectangleBorder(
-                                side: BorderSide(
-                                  width: 1,
-                                  color: vm.selectedIndex == 0 ? Colors.transparent : const Color(0x2B909090),
-                                ),
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                            ),
-                            child: SvgPicture.asset(
-                              'assets/images/home.svg',
-                              width: 30,
-                              height: 30,
-                            ),
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () => vm.onItemTapped(context, 1),
-                          child: Container(
-                            width: 50,
-                            height: 50,
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            decoration: ShapeDecoration(
-                              color: vm.selectedIndex == 1 ? const Color(0xFFFEDC7B) : const Color(0xFFE9E9E9),
-                              shape: RoundedRectangleBorder(
-                                side: BorderSide(
-                                  width: 1,
-                                  color: vm.selectedIndex == 1 ? Colors.transparent : const Color(0x2B909090),
-                                ),
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                            ),
-                            child: SvgPicture.asset(
-                              'assets/images/calendar.svg',
-                              width: 30,
-                              height: 30,
-                            ),
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () => vm.onItemTapped(context, 2),
-                          child: Container(
-                            width: 50,
-                            height: 50,
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            decoration: ShapeDecoration(
-                              color: vm.selectedIndex == 2 ? const Color(0xFFFEDC7B) : const Color(0xFFE9E9E9),
-                              shape: RoundedRectangleBorder(
-                                side: BorderSide(
-                                  width: 1,
-                                  color: vm.selectedIndex == 2 ? Colors.transparent : const Color(0x2B909090),
-                                ),
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                            ),
-                            child: SvgPicture.asset(
-                              'assets/images/list.svg',
-                              width: 25,
-                              height: 25,
-                              colorFilter: const ColorFilter.mode(
-                                Color(0xFF8A8A8A),
-                                BlendMode.srcIn,
-                              ),
-                            ),
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () => vm.onItemTapped(context, 3),
-                          child: Container(
-                            width: 50,
-                            height: 50,
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            decoration: ShapeDecoration(
-                              color: vm.selectedIndex == 3 ? const Color(0xFFFEDC7B) : const Color(0xFFE9E9E9),
-                              shape: RoundedRectangleBorder(
-                                side: BorderSide(
-                                  width: 1,
-                                  color: vm.selectedIndex == 3 ? Colors.transparent : const Color(0x2B909090),
-                                ),
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                            ),
-                            child: SvgPicture.asset(
-                              'assets/images/recipes.svg',
-                              width: 35,
-                              height: 35,
-                              colorFilter: const ColorFilter.mode(
-                                Color(0xFF8A8A8A),
-                                BlendMode.srcIn,
-                              ),
-                            ),
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () => vm.onItemTapped(context, 4),
-                          child: Container(
-                            width: 50,
-                            height: 50,
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            decoration: ShapeDecoration(
-                              color: vm.selectedIndex == 4 ? const Color(0xFFFEDC7B) : const Color(0xFFE9E9E9),
-                              shape: RoundedRectangleBorder(
-                                side: BorderSide(
-                                  width: 1,
-                                  color: vm.selectedIndex == 4 ? Colors.transparent : const Color(0x2B909090),
-                                ),
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                            ),
-                            child: SvgPicture.asset(
-                              'assets/images/user.svg',
-                              width: 30,
-                              height: 30,
-                              colorFilter: const ColorFilter.mode(
-                                Color(0xFF8A8A8A),
-                                BlendMode.srcIn,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+              ),
+
             ),
           );
         },
