@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/auth/sign_in.dart';
-import 'screens/home/home_page.dart';
-import 'screens/planner/planner_screen.dart';
+import 'views/auth/sign_in_v.dart';
 
 void main() {
   runApp(MyApp());
@@ -11,11 +9,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      //home: PlannerScreen(),
-      home: SignInScreen(), // Set SignInScreen as the home screen
-      //home: HomePage(),
+      home: SignInScreen(),
       theme: ThemeData(
-        primarySwatch: Colors.red, // Optional: Customize the theme
+        primarySwatch: Colors.red,
+        fontFamily: 'Kantumruy Pro',
       ),
     );
   }
