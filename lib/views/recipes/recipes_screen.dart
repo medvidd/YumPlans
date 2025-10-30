@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import '/viewmodels/recipes_vm.dart';
 import '/widgets/bottom_nav_w.dart';
+import '/widgets/common_app_bar_w.dart';
 
 class RecipesScreen extends StatefulWidget {
   const RecipesScreen({super.key});
@@ -23,6 +24,10 @@ class _RecipesScreenState extends State<RecipesScreen> {
         builder: (context, vm, child) {
           return Scaffold(
             backgroundColor: const Color(0xFFFFFBF0),
+            appBar: CommonAppBar(
+              title: 'MY RECIPES',
+              screenHeight: screenHeight,
+            ),
             bottomNavigationBar: BottomNavWidget(
               selectedIndex: vm.selectedIndex,
               onItemSelected: (index) {
@@ -40,24 +45,6 @@ class _RecipesScreenState extends State<RecipesScreen> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Container(
-                              width: screenWidth,
-                              height: screenHeight * 0.1,
-                              color: const Color(0xFFABBA72),
-                              child: Center(
-                                child: Text(
-                                  'MY RECIPES',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: const Color(0xFF4B572B),
-                                    fontSize: screenWidth * 0.09,
-                                    fontFamily: 'Kantumruy Pro',
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ),
-                            ),
-
                             SizedBox(height: screenHeight * 0.03),
 
                             Padding(

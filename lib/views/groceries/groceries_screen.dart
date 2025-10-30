@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import '/viewmodels/groceries_vm.dart';
 import '/widgets/bottom_nav_w.dart';
+import '/widgets/common_app_bar_w.dart';
 
 class GroceriesScreen extends StatelessWidget {
   const GroceriesScreen({super.key});
@@ -18,6 +19,10 @@ class GroceriesScreen extends StatelessWidget {
         builder: (context, vm, child) {
           return Scaffold(
             backgroundColor: const Color(0xFFFFFBF0),
+            appBar: CommonAppBar(
+              title: 'GROCERY LIST',
+              screenHeight: screenHeight,
+            ),
             bottomNavigationBar: BottomNavWidget(
               selectedIndex: vm.selectedIndex,
               onItemSelected: (index) {
@@ -30,24 +35,6 @@ class GroceriesScreen extends StatelessWidget {
                   padding: EdgeInsets.only(bottom: screenHeight * 0.05),
                   child: Column(
                     children: [
-                      Container(
-                        width: screenWidth,
-                        height: screenHeight * 0.1,
-                        color: const Color(0xFFABBA72),
-                        child: Center(
-                          child: Text(
-                            'GROCERY LIST',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: const Color(0xFF4B572B),
-                              fontSize: screenWidth * 0.09,
-                              fontFamily: 'Kantumruy Pro',
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ),
-
                       SizedBox(height: screenHeight * 0.03),
 
                       Padding(

@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import '/viewmodels/planner_vm.dart';
 import '/widgets/bottom_nav_w.dart';
+import '/widgets/common_app_bar_w.dart';
 
 class PlannerScreen extends StatefulWidget {
   const PlannerScreen({super.key});
@@ -46,6 +47,10 @@ class _PlannerScreenState extends State<PlannerScreen> with WidgetsBindingObserv
         builder: (context, vm, child) {
           return Scaffold(
             backgroundColor: const Color(0xFFFFFBF0),
+            appBar: CommonAppBar(
+              title: 'PLANNER',
+              screenHeight: screenHeight,
+            ),
             bottomNavigationBar: BottomNavWidget(
               selectedIndex: vm.selectedIndex,
               onItemSelected: (index) {
@@ -63,29 +68,6 @@ class _PlannerScreenState extends State<PlannerScreen> with WidgetsBindingObserv
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Positioned(
-                              top: 0,
-                              left: 0,
-                              right: 0,
-                              child: Container(
-                                width: screenWidth,
-                                height: screenHeight * 0.1,
-                                color: const Color(0xFFABBA72),
-                                child: Center(
-                                  child: Text(
-                                    'PLANNER',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color: const Color(0xFF4B572B),
-                                      fontSize: screenWidth * 0.09,
-                                      fontFamily: 'Kantumruy Pro',
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-
                             SizedBox(height: screenHeight * 0.03),
 
                             Padding(

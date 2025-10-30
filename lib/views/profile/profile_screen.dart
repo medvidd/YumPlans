@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import '/viewmodels/profile_vm.dart';
 import '/widgets/bottom_nav_w.dart';
+import '/widgets/common_app_bar_w.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -23,6 +24,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         builder: (context, vm, child) {
           return Scaffold(
             backgroundColor: const Color(0xFFFFFBF0),
+            appBar: CommonAppBar(
+              title: 'PROFILE',
+              screenHeight: screenHeight,
+            ),
             bottomNavigationBar: BottomNavWidget(
               selectedIndex: vm.selectedIndex,
               onItemSelected: (index) {
@@ -38,24 +43,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Container(
-                          width: screenWidth,
-                          height: screenHeight * 0.1,
-                          color: const Color(0xFFABBA72),
-                          child: Center(
-                            child: Text(
-                              'PROFILE',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: const Color(0xFF4B572B),
-                                fontSize: screenWidth * 0.09,
-                                fontFamily: 'Kantumruy Pro',
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
-                        ),
-
                         SizedBox(height: screenHeight * 0.03),
 
                         Padding(
