@@ -13,10 +13,15 @@ class RecipesScreen extends StatefulWidget {
 }
 
 class _RecipesScreenState extends State<RecipesScreen> {
+  static const double kTabletBreakpoint = 600.0;
+  static const double kMaxContentWidth = 800.0;
+  static const double kHorizontalPadding = 24.0;
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
+    final bool isTablet = screenWidth > kTabletBreakpoint;
 
     return ChangeNotifierProvider<RecipesViewModel>(
       create: (_) => RecipesViewModel(),
@@ -27,6 +32,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
             appBar: CommonAppBar(
               title: 'MY RECIPES',
               screenHeight: screenHeight,
+              isTablet: isTablet,
             ),
             bottomNavigationBar: BottomNavWidget(
               selectedIndex: vm.selectedIndex,
@@ -35,147 +41,178 @@ class _RecipesScreenState extends State<RecipesScreen> {
               },
             ),
             body: SafeArea(
-              child: SizedBox(
-                height: screenHeight,
-                child: Stack(
-                  children: [
-                    SingleChildScrollView(
-                      child: Padding(
-                        padding: EdgeInsets.only(bottom: screenHeight * 0.05),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SizedBox(height: screenHeight * 0.03),
-
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
-                              child: TextField(
-                                controller: vm.searchController,
-                                decoration: InputDecoration(
-                                  hintText: 'Search by name, ingredient, or tag',
-                                  hintStyle: TextStyle(
-                                    color: const Color(0xFF4B572B),
-                                    fontSize: screenWidth * 0.04,
-                                    fontFamily: 'Kantumruy Pro',
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                  prefixIcon: const Icon(
-                                    Icons.search,
-                                    color: Color(0xFF4B572B),
-                                  ),
-                                  filled: true,
-                                  fillColor: const Color(0x4CE7FCB1),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(28.0),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(28.0),
-                                    borderSide: const BorderSide(
-                                      color: Color(0xFFABBA72),
-                                      width: 1.0,
-                                    ),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(28.0),
-                                    borderSide: const BorderSide(
-                                      color: Color(0xFF4B572B),
-                                      width: 1.5,
-                                    ),
-                                  ),
-                                  contentPadding: EdgeInsets.symmetric(
-                                    vertical: screenHeight * 0.015,
-                                  ),
-                                ),
-                                style: TextStyle(
-                                  color: const Color(0xFF4B572B),
-                                  fontSize: screenWidth * 0.04,
-                                ),
-                              ),
-                            ),
-
-                            SizedBox(height: screenHeight * 0.03),
-
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
-                              child: Container(
-                                width: double.infinity,
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: screenWidth * 0.04,
-                                  vertical: screenHeight * 0.03,
-                                ),
-                                decoration: ShapeDecoration(
-                                  color: const Color(0xFFFFFBF0),
-                                  shape: RoundedRectangleBorder(
-                                    side: const BorderSide(
-                                      width: 1,
-                                      color: Color(0x59DF6149),
-                                    ),
-                                    borderRadius: BorderRadius.circular(27),
-                                  ),
-                                ),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'No recipes',
-                                      style: TextStyle(
-                                        color: const Color(0xFF981800),
-                                        fontSize: screenWidth * 0.04,
-                                        fontFamily: 'Kantumruy Pro',
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    Positioned(
-                      right: screenWidth * 0.05,
-                      bottom: screenHeight * 0.02,
-                      child: GestureDetector(
-                        child: SizedBox(
-                          width: screenWidth * 0.14,
-                          height: screenWidth * 0.14,
-                          child: Stack(
-                            alignment: Alignment.center,
+              child: Stack(
+                children: [
+                  Align(
+                    alignment: Alignment.topCenter,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: kMaxContentWidth),
+                      child: SingleChildScrollView(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: kHorizontalPadding,
+                            vertical: 20.0,
+                          ).add(const EdgeInsets.only(bottom: 80.0)),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Container(
-                                decoration: const ShapeDecoration(
-                                  color: Color(0x7FFFFBF0),
-                                  shape: OvalBorder(),
-                                  shadows: [
-                                    BoxShadow(
-                                      color: Color(0x3F000000),
-                                      blurRadius: 7.60,
-                                      offset: Offset(0, 0),
-                                      spreadRadius: 0,
-                                    )
-                                  ],
-                                ),
-                              ),
-                              SvgPicture.asset(
-                                'assets/images/add_circle.svg',
-                                width: screenWidth * 0.13,
-                                height: screenWidth * 0.13,
-                              ),
+                              _buildSearchBar(context, vm, isTablet),
+                              const SizedBox(height: 24),
+                              _buildNoRecipesCard(context, vm, isTablet),
                             ],
                           ),
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  _buildAddButton(context, isTablet),
+                ],
               ),
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildSearchBar(BuildContext context, RecipesViewModel vm, bool isTablet) {
+
+    final double fieldHeight = isTablet ? 60 : 55;
+    final double fontSize = isTablet ? 18 : 16;
+    final double iconSize = isTablet ? 28 : 24;
+
+    return TextField(
+      controller: vm.searchController,
+      decoration: InputDecoration(
+        hintText: 'Search by name, ingredient, or tag',
+        hintStyle: TextStyle(
+          color: const Color(0xFF4B572B),
+          fontSize: fontSize,
+          fontFamily: 'Kantumruy Pro',
+          fontWeight: FontWeight.w400,
+        ),
+        prefixIcon: Padding(
+          padding: const EdgeInsets.only(left: 16.0, right: 12.0),
+          child: Icon(
+            Icons.search,
+            color: const Color(0xFF4B572B),
+            size: iconSize,
+          ),
+        ),
+        prefixIconConstraints: const BoxConstraints(
+          minWidth: 20,
+          minHeight: 20,
+        ),
+        filled: true,
+        fillColor: const Color(0x4CE7FCB1),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(28.0),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(28.0),
+          borderSide: const BorderSide(
+            color: Color(0xFFABBA72),
+            width: 1.0,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(28.0),
+          borderSide: const BorderSide(
+            color: Color(0xFF4B572B),
+            width: 1.5,
+          ),
+        ),
+        contentPadding: EdgeInsets.symmetric(
+          vertical: (fieldHeight - (fontSize * 1.5)) / 2,
+        ),
+      ),
+      style: TextStyle(
+        color: const Color(0xFF4B572B),
+        fontSize: fontSize,
+      ),
+    );
+  }
+
+  Widget _buildNoRecipesCard(BuildContext context, RecipesViewModel vm, bool isTablet) {
+
+    final double fontSize = isTablet ? 18 : 16;
+    final double vPadding = isTablet ? 40 : 30;
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(
+        horizontal: kHorizontalPadding,
+        vertical: vPadding,
+      ),
+      decoration: ShapeDecoration(
+        color: const Color(0xFFFFFBF0),
+        shape: RoundedRectangleBorder(
+          side: const BorderSide(
+            width: 1,
+            color: Color(0x59DF6149),
+          ),
+          borderRadius: BorderRadius.circular(27),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            'No recipes',
+            style: TextStyle(
+              color: const Color(0xFF981800),
+              fontSize: fontSize,
+              fontFamily: 'Kantumruy Pro',
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAddButton(BuildContext context, bool isTablet) {
+    final double buttonSize = isTablet ? 70 : 55;
+    final double bottomPadding = isTablet ? 30 : 20;
+    final double rightPadding = isTablet ? 30 : 20;
+
+    return Positioned(
+      right: rightPadding,
+      bottom: bottomPadding,
+      child: GestureDetector(
+        onTap: () {
+        },
+        child: SizedBox(
+          width: buttonSize,
+          height: buttonSize,
+          child: Stack(
+            children: [
+              Container(
+                decoration: const ShapeDecoration(
+                  color: Color(0x7FFFFBF0),
+                  shape: OvalBorder(),
+                  shadows: [
+                    BoxShadow(
+                      color: Color(0x3F000000),
+                      blurRadius: 7.60,
+                      offset: Offset(0, 0),
+                      spreadRadius: 0,
+                    )
+                  ],
+                ),
+              ),
+              Center(
+                child: SvgPicture.asset(
+                  'assets/images/add_circle.svg',
+                  width: buttonSize * 0.95,
+                  height: buttonSize * 0.95,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

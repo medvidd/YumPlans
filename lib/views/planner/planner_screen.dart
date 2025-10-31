@@ -13,6 +13,11 @@ class PlannerScreen extends StatefulWidget {
 }
 
 class _PlannerScreenState extends State<PlannerScreen> with WidgetsBindingObserver {
+
+  static const double kTabletBreakpoint = 600.0;
+  static const double kMaxContentWidth = 800.0;
+  static const double kHorizontalPadding = 24.0;
+
   @override
   void initState() {
     super.initState();
@@ -40,6 +45,7 @@ class _PlannerScreenState extends State<PlannerScreen> with WidgetsBindingObserv
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
+    final bool isTablet = screenWidth > kTabletBreakpoint;
 
     return ChangeNotifierProvider<PlannerViewModel>(
       create: (_) => PlannerViewModel(),
@@ -50,6 +56,7 @@ class _PlannerScreenState extends State<PlannerScreen> with WidgetsBindingObserv
             appBar: CommonAppBar(
               title: 'PLANNER',
               screenHeight: screenHeight,
+              isTablet: isTablet,
             ),
             bottomNavigationBar: BottomNavWidget(
               selectedIndex: vm.selectedIndex,
@@ -58,317 +65,362 @@ class _PlannerScreenState extends State<PlannerScreen> with WidgetsBindingObserv
               },
             ),
             body: SafeArea(
-              child: SizedBox(
-                height: screenHeight,
-                child: Stack(
-                  children: [
-                    SingleChildScrollView(
-                      child: Padding(
-                        padding: EdgeInsets.only(top: screenHeight * 0.0001, bottom: screenHeight * 0.05),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SizedBox(height: screenHeight * 0.03),
-
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  GestureDetector(
-                                    onTap: vm.toggleCalendar,
-                                    child: Text(
-                                      vm.showCalendar ? 'CLOSE CALENDAR' : 'VIEW CALENDAR',
-                                      style: TextStyle(
-                                        color: const Color(0xFFA37F1A),
-                                        fontSize: screenWidth * 0.04,
-                                        fontFamily: 'Kantumruy Pro',
-                                        fontWeight: FontWeight.w500,
-                                        decoration: TextDecoration.underline,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            if (vm.showCalendar)
-                              Container(
-                                width: screenWidth * 0.9,
-                                margin: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
-                                decoration: ShapeDecoration(
-                                  color: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    side: const BorderSide(width: 1, color: Color(0xFF959595)),
-                                    borderRadius: BorderRadius.circular(28),
-                                  ),
-                                ),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Padding(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: screenWidth * 0.03,
-                                        vertical: screenHeight * 0.005,
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          GestureDetector(
-                                            onTap: () => vm.navigateMonth(false),
-                                            child: SizedBox(
-                                              width: screenWidth * 0.12,
-                                              height: screenWidth * 0.12,
-                                              child: SvgPicture.asset('assets/images/arrow_left.svg'),
-                                            ),
-                                          ),
-                                          Text(
-                                            vm.monthFormat.format(vm.focusedMonth),
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              color: const Color(0xFF49454F),
-                                              fontSize: screenWidth * 0.04,
-                                              fontFamily: 'Kantumruy Pro',
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                          GestureDetector(
-                                            onTap: () => vm.navigateMonth(true),
-                                            child: SizedBox(
-                                              width: screenWidth * 0.12,
-                                              height: screenWidth * 0.12,
-                                              child: SvgPicture.asset('assets/images/arrow_right.svg'),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.03),
-                                      child: GridView.builder(
-                                        shrinkWrap: true,
-                                        physics: const NeverScrollableScrollPhysics(),
-                                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: 7,
-                                        ),
-                                        itemCount: vm.getDaysInMonth().length,
-                                        itemBuilder: (context, index) {
-                                          final date = vm.getDaysInMonth()[index];
-                                          if (date == null) return const SizedBox();
-                                          final isSelected = _isSameDay(date, vm.currentDate);
-                                          final isToday = _isSameDay(date, vm.today);
-
-                                          return GestureDetector(
-                                            onTap: () => vm.selectDate(date),
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(3.0),
-                                              child: Container(
-                                                alignment: Alignment.center,
-                                                decoration: ShapeDecoration(
-                                                  color: isSelected ? const Color(0xFFDF6149) : Colors.transparent,
-                                                  shape: RoundedRectangleBorder(
-                                                    side: isToday && !isSelected
-                                                        ? const BorderSide(width: 2, color: Color(0xFF708240))
-                                                        : BorderSide.none,
-                                                    borderRadius: BorderRadius.circular(100),
-                                                  ),
-                                                ),
-                                                child: Text(
-                                                  date.day.toString(),
-                                                  style: TextStyle(
-                                                    fontFamily: 'Kantumruy Pro',
-                                                    color: isSelected ? Colors.white : const Color(0xFF1D1B20),
-                                                    fontWeight: FontWeight.w400,
-                                                    fontSize: screenWidth * 0.035,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                    SizedBox(height: screenHeight * 0.02),
-                                  ],
-                                ),
-                              ),
-
-                            SizedBox(height: screenHeight * 0.02),
-
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  GestureDetector(
-                                    onTap: () => vm.navigateWeek(false),
-                                    child: SizedBox(
-                                      width: screenWidth * 0.12,
-                                      height: screenWidth * 0.12,
-                                      child: SvgPicture.asset('assets/images/arrow_left.svg'),
-                                    ),
-                                  ),
-                                  Text(
-                                    vm.weekFormat.format(vm.currentDate),
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color: const Color(0xFF4B572B),
-                                      fontSize: screenWidth * 0.045,
-                                      fontFamily: 'Kantumruy Pro',
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                  GestureDetector(
-                                    onTap: () => vm.navigateWeek(true),
-                                    child: SizedBox(
-                                      width: screenWidth * 0.12,
-                                      height: screenWidth * 0.12,
-                                      child: SvgPicture.asset('assets/images/arrow_right.svg'),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            SizedBox(height: screenHeight * 0.02),
-
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
-                              child: Row(
-                                children: vm.getWeekDates().map((date) {
-                                  final isSelected = _isSameDay(date, vm.currentDate);
-                                  final isToday = _isSameDay(date, vm.today);
-
-                                  return Expanded(
-                                    child: GestureDetector(
-                                      onTap: () => vm.selectDate(date),
-                                      child: Column(
-                                        children: [
-                                          Text(
-                                            vm.dayFormat.format(date).substring(0, 1),
-                                            style: TextStyle(
-                                              color: const Color(0xFF49454F),
-                                              fontSize: screenWidth * 0.04,
-                                              fontFamily: 'Kantumruy Pro',
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Container(
-                                            width: screenWidth * 0.1,
-                                            height: screenWidth * 0.1,
-                                            decoration: ShapeDecoration(
-                                              color: isSelected ? const Color(0xFFDF6149) : Colors.transparent,
-                                              shape: RoundedRectangleBorder(
-                                                side: BorderSide(
-                                                  width: 2,
-                                                  color: isSelected
-                                                      ? Colors.transparent
-                                                      : (isToday ? const Color(0xFF708240) : const Color(0xFF959595)),
-                                                ),
-                                                borderRadius: BorderRadius.circular(20),
-                                              ),
-                                            ),
-                                            child: Center(
-                                              child: Text(
-                                                vm.dateNumberFormat.format(date),
-                                                style: TextStyle(
-                                                  color: isSelected
-                                                      ? Colors.white
-                                                      : (isToday ? const Color(0xFF708240) : const Color(0xFF959595)),
-                                                  fontSize: screenWidth * 0.04,
-                                                  fontFamily: 'Kantumruy Pro',
-                                                  fontWeight: FontWeight.w700,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-                            SizedBox(height: screenHeight * 0.02),
-
-                            Container(
-                              width: screenWidth * 0.9,
-                              padding: EdgeInsets.symmetric(
-                                horizontal: screenWidth * 0.04,
-                                vertical: screenHeight * 0.03,
-                              ),
-                              decoration: ShapeDecoration(
-                                color: const Color(0xFFFFFBF0),
-                                shape: RoundedRectangleBorder(
-                                  side: const BorderSide(
-                                    width: 1,
-                                    color: Color(0x59DF6149),
-                                  ),
-                                  borderRadius: BorderRadius.circular(27),
-                                ),
-                              ),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'No meals planned',
-                                    style: TextStyle(
-                                      color: const Color(0xFF981800),
-                                      fontSize: screenWidth * 0.04,
-                                      fontFamily: 'Kantumruy Pro',
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      right: screenWidth * 0.05,
-                      bottom: screenHeight * 0.02,
-                      child: GestureDetector(
-                        child: SizedBox(
-                          width: screenWidth * 0.14,
-                          height: screenWidth * 0.14,
-                          child: Stack(
+              child: Stack(
+                children: [
+                  Align(
+                    alignment: Alignment.topCenter,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: kMaxContentWidth),
+                      child: SingleChildScrollView(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: kHorizontalPadding,
+                            vertical: 20.0,
+                          ).add(const EdgeInsets.only(bottom: 80.0)),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Container(
-                                decoration: const ShapeDecoration(
-                                  color: Color(0x7FFFFBF0),
-                                  shape: OvalBorder(),
-                                  shadows: [
-                                    BoxShadow(
-                                      color: Color(0x3F000000),
-                                      blurRadius: 7.60,
-                                      offset: Offset(0, 0),
-                                      spreadRadius: 0,
-                                    )
-                                  ],
-                                ),
-                              ),
-                              Center(
-                                child: SvgPicture.asset(
-                                  'assets/images/add_circle.svg',
-                                  width: screenWidth * 0.13,
-                                  height: screenWidth * 0.13,
-                                ),
-                              ),
+                              _buildCalendarToggle(context, vm, isTablet),
+                              const SizedBox(height: 16),
+                              if (vm.showCalendar)
+                                _buildCalendarView(context, vm, isTablet),
+                              const SizedBox(height: 16),
+                              _buildWeekNavigator(context, vm, isTablet),
+                              const SizedBox(height: 16),
+                              _buildWeekView(context, vm, isTablet),
+                              const SizedBox(height: 16),
+                              _buildMealsCard(context, vm, isTablet),
                             ],
                           ),
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  _buildAddButton(context, isTablet),
+                ],
               ),
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildCalendarToggle(BuildContext context, PlannerViewModel vm, bool isTablet) {
+    final double fontSize = isTablet ? 18 : 16;
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        GestureDetector(
+          onTap: vm.toggleCalendar,
+          child: Text(
+            vm.showCalendar ? 'CLOSE CALENDAR' : 'VIEW CALENDAR',
+            style: TextStyle(
+              color: const Color(0xFFA37F1A),
+              fontSize: fontSize,
+              fontFamily: 'Kantumruy Pro',
+              fontWeight: FontWeight.w500,
+              decoration: TextDecoration.underline,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCalendarView(BuildContext context, PlannerViewModel vm, bool isTablet) {
+    final double arrowSize = isTablet ? 50 : 40;
+    final double titleFontSize = isTablet ? 20 : 18;
+    final double dayFontSize = isTablet ? 16 : 14;
+    final double padding = isTablet ? 16 : 8;
+
+    Widget calendarWidget = Container(
+      decoration: ShapeDecoration(
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
+          side: const BorderSide(width: 1, color: Color(0xFF959595)),
+          borderRadius: BorderRadius.circular(28),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: padding, vertical: 5),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                GestureDetector(
+                  onTap: () => vm.navigateMonth(false),
+                  child: SizedBox(
+                    width: arrowSize,
+                    height: arrowSize,
+                    child: SvgPicture.asset('assets/images/arrow_left.svg'),
+                  ),
+                ),
+                Text(
+                  vm.monthFormat.format(vm.focusedMonth),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: const Color(0xFF49454F),
+                    fontSize: titleFontSize,
+                    fontFamily: 'Kantumruy Pro',
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () => vm.navigateMonth(true),
+                  child: SizedBox(
+                    width: arrowSize,
+                    height: arrowSize,
+                    child: SvgPicture.asset('assets/images/arrow_right.svg'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: padding),
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 7,
+              ),
+              itemCount: vm.getDaysInMonth().length,
+              itemBuilder: (context, index) {
+                final date = vm.getDaysInMonth()[index];
+                if (date == null) return const SizedBox();
+                final isSelected = _isSameDay(date, vm.currentDate);
+                final isToday = _isSameDay(date, vm.today);
+
+                return GestureDetector(
+                  onTap: () => vm.selectDate(date),
+                  child: Padding(
+                    padding: const EdgeInsets.all(3.0),
+                    child: Container(
+                      alignment: Alignment.center,
+                      decoration: ShapeDecoration(
+                        color: isSelected ? const Color(0xFFDF6149) : Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                          side: isToday && !isSelected
+                              ? const BorderSide(width: 2, color: Color(0xFF708240))
+                              : BorderSide.none,
+                          borderRadius: BorderRadius.circular(100),
+                        ),
+                      ),
+                      child: Text(
+                        date.day.toString(),
+                        style: TextStyle(
+                          fontFamily: 'Kantumruy Pro',
+                          color: isSelected ? Colors.white : const Color(0xFF1D1B20),
+                          fontWeight: FontWeight.w400,
+                          fontSize: dayFontSize,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          SizedBox(height: isTablet ? 20 : 10),
+        ],
+      ),
+    );
+
+    if (isTablet) {
+      return Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxWidth: 450.0,
+          ),
+          child: calendarWidget,
+        ),
+      );
+    }
+
+    return calendarWidget;
+  }
+
+  Widget _buildWeekNavigator(BuildContext context, PlannerViewModel vm, bool isTablet) {
+    final double arrowSize = isTablet ? 50 : 40;
+    final double titleFontSize = isTablet ? 22 : 18;
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        GestureDetector(
+          onTap: () => vm.navigateWeek(false),
+          child: SizedBox(
+            width: arrowSize,
+            height: arrowSize,
+            child: SvgPicture.asset('assets/images/arrow_left.svg'),
+          ),
+        ),
+        Text(
+          vm.weekFormat.format(vm.currentDate),
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: const Color(0xFF4B572B),
+            fontSize: titleFontSize,
+            fontFamily: 'Kantumruy Pro',
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        GestureDetector(
+          onTap: () => vm.navigateWeek(true),
+          child: SizedBox(
+            width: arrowSize,
+            height: arrowSize,
+            child: SvgPicture.asset('assets/images/arrow_right.svg'),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildWeekView(BuildContext context, PlannerViewModel vm, bool isTablet) {
+    final double dayLetterFontSize = isTablet ? 18 : 16;
+    final double dayBoxSize = isTablet ? 60 : 45;
+    final double dayNumberFontSize = isTablet ? 18 : 16;
+
+    return Row(
+      children: vm.getWeekDates().map((date) {
+        final isSelected = _isSameDay(date, vm.currentDate);
+        final isToday = _isSameDay(date, vm.today);
+
+        return Expanded(
+          child: GestureDetector(
+            onTap: () => vm.selectDate(date),
+            child: Column(
+              children: [
+                Text(
+                  vm.dayFormat.format(date).substring(0, 1),
+                  style: TextStyle(
+                    color: const Color(0xFF49454F),
+                    fontSize: dayLetterFontSize,
+                    fontFamily: 'Kantumruy Pro',
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Container(
+                  width: dayBoxSize,
+                  height: dayBoxSize,
+                  decoration: ShapeDecoration(
+                    color: isSelected ? const Color(0xFFDF6149) : Colors.transparent,
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(
+                        width: 2,
+                        color: isSelected
+                            ? Colors.transparent
+                            : (isToday ? const Color(0xFF708240) : const Color(0xFF959595)),
+                      ),
+                      borderRadius: BorderRadius.circular(isTablet ? 50 : 50),
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(
+                      vm.dateNumberFormat.format(date),
+                      style: TextStyle(
+                        color: isSelected
+                            ? Colors.white
+                            : (isToday ? const Color(0xFF708240) : const Color(0xFF959595)),
+                        fontSize: dayNumberFontSize,
+                        fontFamily: 'Kantumruy Pro',
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildMealsCard(BuildContext context, PlannerViewModel vm, bool isTablet) {
+    final double fontSize = isTablet ? 18 : 16;
+    final double vPadding = isTablet ? 40 : 30;
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(
+        horizontal: kHorizontalPadding,
+        vertical: vPadding,
+      ),
+      decoration: ShapeDecoration(
+        color: const Color(0xFFFFFBF0),
+        shape: RoundedRectangleBorder(
+          side: const BorderSide(
+            width: 1,
+            color: Color(0x59DF6149),
+          ),
+          borderRadius: BorderRadius.circular(27),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            'No meals planned',
+            style: TextStyle(
+              color: const Color(0xFF981800),
+              fontSize: fontSize,
+              fontFamily: 'Kantumruy Pro',
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAddButton(BuildContext context, bool isTablet) {
+    final double buttonSize = isTablet ? 70 : 55;
+    final double bottomPadding = isTablet ? 30 : 20;
+    final double rightPadding = isTablet ? 30 : 20;
+
+    return Positioned(
+      right: rightPadding,
+      bottom: bottomPadding,
+      child: GestureDetector(
+        onTap: () {
+        },
+        child: SizedBox(
+          width: buttonSize,
+          height: buttonSize,
+          child: Stack(
+            children: [
+              Container(
+                decoration: const ShapeDecoration(
+                  color: Color(0x7FFFFBF0),
+                  shape: OvalBorder(),
+                  shadows: [
+                    BoxShadow(
+                      color: Color(0x3F000000),
+                      blurRadius: 7.60,
+                      offset: Offset(0, 0),
+                      spreadRadius: 0,
+                    )
+                  ],
+                ),
+              ),
+              Center(
+                child: SvgPicture.asset(
+                  'assets/images/add_circle.svg',
+                  width: buttonSize * 0.95,
+                  height: buttonSize * 0.95,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
