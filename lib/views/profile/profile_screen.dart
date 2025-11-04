@@ -127,7 +127,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Name Surname',
+                      vm.userName,
                       style: TextStyle(
                         color: const Color(0xFF4B572B),
                         fontSize: nameFontSize,
@@ -136,7 +136,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                     Text(
-                      'namesurname@gmail.com',
+                      vm.userEmail,
                       style: TextStyle(
                         color: const Color(0xFF8A8A8A),
                         fontSize: emailFontSize,
