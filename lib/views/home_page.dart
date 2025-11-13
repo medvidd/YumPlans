@@ -75,6 +75,14 @@ class HomePageScreen extends StatelessWidget {
               ),
             ),
           ),
+          /*ElevatedButton(
+            onPressed: () {
+              FirebaseCrashlytics.instance.crash();
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Test Crash'),
+          ),
+          const SizedBox(height: 20),*/
 
           Center(
             child: Column(

@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '/fb_services/auth_service.dart';
 import '/views/home_page.dart';
 import '/views/auth/sign_in_v.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 class SignUpViewModel extends ChangeNotifier {
   final TextEditingController nameController = TextEditingController();
@@ -49,13 +51,22 @@ class SignUpViewModel extends ChangeNotifier {
         password: passwordController.text.trim(),
       );
 
+      await FirebaseAnalytics.instance.logSignUp(signUpMethod: 'email');
+
       if (!context.mounted) return;
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const HomePageScreen()),
       );
 
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException catch (e, stackTrace) {
+      FirebaseCrashlytics.instance.recordError(
+          e,
+          stackTrace,
+          reason: 'A user failed to sign up',
+          fatal: false
+      );
+
       if (e.code == 'weak-password') {
         errorMessage = 'The password is too weak.';
       } else if (e.code == 'email-already-in-use') {

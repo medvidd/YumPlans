@@ -6,6 +6,7 @@ import '/views/planner/planner_screen.dart';
 import '/views/groceries/groceries_screen.dart';
 import '/views/recipes/recipes_screen.dart';
 import '/views/auth/sign_in_v.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 class ProfileViewModel extends ChangeNotifier {
   final TextEditingController searchController = TextEditingController();
@@ -44,6 +45,8 @@ class ProfileViewModel extends ChangeNotifier {
 
   Future<void> logOut(BuildContext context) async {
     await _authService.signOut();
+
+    await FirebaseAnalytics.instance.logEvent(name: 'logout');
 
     if (!context.mounted) return;
     Navigator.pushAndRemoveUntil(

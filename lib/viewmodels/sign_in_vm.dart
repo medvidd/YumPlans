@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '/fb_services/auth_service.dart';
 import '/views/home_page.dart';
 import '/views/auth/sign_up_v.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 class SignInViewModel extends ChangeNotifier {
   final TextEditingController emailController = TextEditingController();
@@ -34,13 +36,22 @@ class SignInViewModel extends ChangeNotifier {
         password: passwordController.text.trim(),
       );
 
+      await FirebaseAnalytics.instance.logLogin(loginMethod: 'email');
+
       if (!context.mounted) return;
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const HomePageScreen()),
       );
 
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException catch (e, stackTrace) {
+      FirebaseCrashlytics.instance.recordError(
+          e,
+          stackTrace,
+          reason: 'A user failed to sign in',
+          fatal: false
+      );
+
       if (e.code == 'user-not-found' || e.code == 'invalid-credential') {
         errorMessage = 'Invalid email or password.';
       } else if (e.code == 'wrong-password') {
