@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '/viewmodels/home_page_vm.dart';
 import '/widgets/bottom_nav_w.dart';
+import '/models/planner_model.dart';
+import '/views/planner/planned_meal_item.dart';
+import '/views/planner/edit_planned_meal_screen.dart';
+import '/viewmodels/recipes_vm.dart';
 
 class HomePageScreen extends StatelessWidget {
   const HomePageScreen({super.key});
@@ -46,7 +50,6 @@ class HomePageScreen extends StatelessWidget {
   }
 
   Widget _buildHeader(BuildContext context, HomePageViewModel vm, bool isTablet, double screenWidth, double screenHeight) {
-
     final double headerHeight = isTablet ? 300 : 200;
     final double welcomeFontSize = isTablet ? 28 : 20;
     final double logoSize = isTablet ? 125 : 95;
@@ -75,15 +78,6 @@ class HomePageScreen extends StatelessWidget {
               ),
             ),
           ),
-          /*ElevatedButton(
-            onPressed: () {
-              FirebaseCrashlytics.instance.crash();
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Test Crash'),
-          ),
-          const SizedBox(height: 20),*/
-
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -170,12 +164,16 @@ class HomePageScreen extends StatelessWidget {
   }
 
   Widget _buildBody(BuildContext context, HomePageViewModel vm, bool isTablet) {
-
     final double smallIconSize = isTablet ? 26 : 22;
     final double plannedMealsFontSize = isTablet ? 18 : 16;
     final double cardTitleFontSize = isTablet ? 20 : 18;
     final double cardKcalFontSize = isTablet ? 18 : 16;
     final double noMealsFontSize = isTablet ? 18 : 16;
+
+    double progress = 0.0;
+    if (vm.dailyCalorieGoal > 0) {
+      progress = (vm.consumedCalories / vm.dailyCalorieGoal).clamp(0.0, 1.0);
+    }
 
     return Expanded(
       child: SingleChildScrollView(
@@ -219,8 +217,7 @@ class HomePageScreen extends StatelessWidget {
                   const SizedBox(height: 4),
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 24, vertical: 22),
+                    padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 22),
                     decoration: ShapeDecoration(
                       color: const Color(0xFFFFFBF0),
                       shape: RoundedRectangleBorder(
@@ -248,7 +245,7 @@ class HomePageScreen extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              '0/0 kcal',
+                              '${vm.consumedCalories}/${vm.dailyCalorieGoal} kcal',
                               style: TextStyle(
                                 color: const Color(0xFF708240),
                                 fontSize: cardKcalFontSize,
@@ -256,50 +253,79 @@ class HomePageScreen extends StatelessWidget {
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                            const SizedBox(height: 2),
+                            const SizedBox(height: 7),
                             Container(
                               width: double.infinity,
                               height: 28,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 2, vertical: 5),
+                              padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2.5),
                               decoration: ShapeDecoration(
                                 color: const Color(0x7AD9D9D9),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                  BorderRadius.circular(40),
+                                  borderRadius: BorderRadius.circular(40),
                                 ),
                               ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 0,
-                                    height: 23,
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: FractionallySizedBox(
+                                  widthFactor: progress,
+                                  child: Container(
                                     decoration: ShapeDecoration(
-                                      color:
-                                      const Color(0xFFFEDC7B),
+                                      color: const Color(0xFFFEDC7B),
                                       shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                        BorderRadius.circular(50),
+                                        borderRadius: BorderRadius.circular(50),
                                       ),
                                     ),
                                   ),
-                                ],
+                                ),
                               ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 30),
-                        Center(
-                          child: Text(
-                            'No meals planned',
-                            style: TextStyle(
-                              color: const Color(0xFF981800),
-                              fontSize: noMealsFontSize,
-                              fontFamily: 'Kantumruy Pro',
-                              fontWeight: FontWeight.w500,
+
+                        if (vm.todayMeals.isEmpty)
+                          Center(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 20),
+                              child: Text(
+                                'No meals planned',
+                                style: TextStyle(
+                                  color: const Color(0xFF981800),
+                                  fontSize: noMealsFontSize,
+                                  fontFamily: 'Kantumruy Pro',
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
                             ),
+                          )
+                        else
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: vm.todayMeals.length,
+                            itemBuilder: (context, index) {
+                              return PlannedMealItem(
+                                meal: vm.todayMeals[index],
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ChangeNotifierProvider(
+                                        create: (_) {
+                                          final recipesVM = RecipesViewModel();
+                                          recipesVM.fetchRecipes();
+                                          return recipesVM;
+                                        },
+                                        child: EditPlannedMealScreen(
+                                          plannedMeal: vm.todayMeals[index],
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
                           ),
-                        ),
                       ],
                     ),
                   ),

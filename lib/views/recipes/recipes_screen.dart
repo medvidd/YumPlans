@@ -4,6 +4,9 @@ import 'package:provider/provider.dart';
 import '/viewmodels/recipes_vm.dart';
 import '/widgets/bottom_nav_w.dart';
 import '/widgets/common_app_bar_w.dart';
+import 'recipe_list_item.dart';
+import 'recipe_details_screen.dart';
+import 'create_recipe_screen.dart';
 
 class RecipesScreen extends StatefulWidget {
   const RecipesScreen({super.key});
@@ -47,20 +50,19 @@ class _RecipesScreenState extends State<RecipesScreen> {
                     alignment: Alignment.topCenter,
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: kMaxContentWidth),
-                      child: SingleChildScrollView(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: kHorizontalPadding,
-                            vertical: 20.0,
-                          ).add(const EdgeInsets.only(bottom: 80.0)),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              _buildSearchBar(context, vm, isTablet),
-                              const SizedBox(height: 24),
-                              _buildNoRecipesCard(context, vm, isTablet),
-                            ],
-                          ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: kHorizontalPadding,
+                          vertical: 20.0,
+                        ),
+                        child: Column(
+                          children: [
+                            _buildSearchBar(context, vm, isTablet),
+                            const SizedBox(height: 24),
+                            Expanded(
+                              child: _buildRecipeList(context, vm, isTablet),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -75,8 +77,67 @@ class _RecipesScreenState extends State<RecipesScreen> {
     );
   }
 
-  Widget _buildSearchBar(BuildContext context, RecipesViewModel vm, bool isTablet) {
+  Widget _buildRecipeList(BuildContext context, RecipesViewModel vm, bool isTablet) {
+    if (vm.isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(color: Color(0xFFABBA72)),
+      );
+    }
 
+    if (vm.errorMessage != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 48, color: Color(0xFF981800)),
+            const SizedBox(height: 16),
+            Text(
+              vm.errorMessage!,
+              style: const TextStyle(
+                color: Color(0xFF981800),
+                fontSize: 16,
+                fontFamily: 'Kantumruy Pro',
+              ),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: vm.fetchRecipes,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFABBA72),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              ),
+              child: const Text("Retry", style: TextStyle(color: Colors.white)),
+            )
+          ],
+        ),
+      );
+    }
+
+    if (vm.recipes.isEmpty) {
+      return _buildNoRecipesCard(context, vm, isTablet);
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.only(bottom: 80.0),
+      itemCount: vm.recipes.length,
+      itemBuilder: (context, index) {
+        final recipe = vm.recipes[index];
+        return RecipeListItem(
+          recipe: recipe,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => RecipeDetailsScreen(recipe: recipe),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildSearchBar(BuildContext context, RecipesViewModel vm, bool isTablet) {
     final double fieldHeight = isTablet ? 60 : 55;
     final double fontSize = isTablet ? 18 : 16;
     final double iconSize = isTablet ? 28 : 24;
@@ -135,7 +196,6 @@ class _RecipesScreenState extends State<RecipesScreen> {
   }
 
   Widget _buildNoRecipesCard(BuildContext context, RecipesViewModel vm, bool isTablet) {
-
     final double fontSize = isTablet ? 18 : 16;
     final double vPadding = isTablet ? 40 : 30;
 
@@ -183,6 +243,10 @@ class _RecipesScreenState extends State<RecipesScreen> {
       bottom: bottomPadding,
       child: GestureDetector(
         onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const CreateRecipeScreen()),
+          );
         },
         child: SizedBox(
           width: buttonSize,

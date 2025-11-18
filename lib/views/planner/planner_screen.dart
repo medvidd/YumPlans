@@ -4,6 +4,10 @@ import 'package:provider/provider.dart';
 import '/viewmodels/planner_vm.dart';
 import '/widgets/bottom_nav_w.dart';
 import '/widgets/common_app_bar_w.dart';
+import 'planned_meal_item.dart';
+import '/viewmodels/recipes_vm.dart';
+import 'add_planned_meal_screen.dart';
+import '/views/planner/edit_planned_meal_screen.dart';
 
 class PlannerScreen extends StatefulWidget {
   const PlannerScreen({super.key});
@@ -88,15 +92,26 @@ class _PlannerScreenState extends State<PlannerScreen> with WidgetsBindingObserv
                               _buildWeekNavigator(context, vm, isTablet),
                               const SizedBox(height: 16),
                               _buildWeekView(context, vm, isTablet),
-                              const SizedBox(height: 16),
-                              _buildMealsCard(context, vm, isTablet),
+                              IgnorePointer(
+                                ignoring: vm.showCalendar,
+                                child: AnimatedOpacity(
+                                  duration: const Duration(milliseconds: 300),
+                                  opacity: vm.showCalendar ? 0.3 : 1.0,
+                                  child: Column(
+                                    children: [
+                                      const SizedBox(height: 30),
+                                      _buildMealsCard(context, vm, isTablet),
+                                    ],
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                         ),
                       ),
                     ),
                   ),
-                  _buildAddButton(context, isTablet),
+                  _buildAddButton(context, vm, isTablet),
                 ],
               ),
             ),
@@ -344,44 +359,67 @@ class _PlannerScreenState extends State<PlannerScreen> with WidgetsBindingObserv
   }
 
   Widget _buildMealsCard(BuildContext context, PlannerViewModel vm, bool isTablet) {
-    final double fontSize = isTablet ? 18 : 16;
-    final double vPadding = isTablet ? 40 : 30;
+    final meals = vm.mealsForSelectedDay;
 
+    if (meals.isEmpty) {
+      return _buildEmptyState(isTablet);
+    }
+
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: meals.length,
+      itemBuilder: (context, index) {
+        return PlannedMealItem(
+          meal: meals[index],
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ChangeNotifierProvider(
+                  create: (_) {
+                    final recipesVM = RecipesViewModel();
+                    recipesVM.fetchRecipes();
+                    return recipesVM;
+                  },
+                  child: EditPlannedMealScreen(
+                    plannedMeal: meals[index],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildEmptyState(bool isTablet) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(
-        horizontal: kHorizontalPadding,
-        vertical: vPadding,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
       decoration: ShapeDecoration(
         color: const Color(0xFFFFFBF0),
         shape: RoundedRectangleBorder(
-          side: const BorderSide(
-            width: 1,
-            color: Color(0x59DF6149),
-          ),
+          side: const BorderSide(width: 1, color: Color(0x59DF6149)),
           borderRadius: BorderRadius.circular(27),
         ),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(
-            'No meals planned',
-            style: TextStyle(
-              color: const Color(0xFF981800),
-              fontSize: fontSize,
-              fontFamily: 'Kantumruy Pro',
-              fontWeight: FontWeight.w500,
-            ),
+      child: const Center(
+        child: Text(
+          'No meals planned',
+          style: TextStyle(
+            color: Color(0xFF981800),
+            fontSize: 16,
+            fontFamily: 'Kantumruy Pro',
+            fontWeight: FontWeight.w500,
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildAddButton(BuildContext context, bool isTablet) {
+  Widget _buildAddButton(BuildContext context, PlannerViewModel vm, bool isTablet) {
     final double buttonSize = isTablet ? 70 : 55;
     final double bottomPadding = isTablet ? 30 : 20;
     final double rightPadding = isTablet ? 30 : 20;
@@ -391,6 +429,14 @@ class _PlannerScreenState extends State<PlannerScreen> with WidgetsBindingObserv
       bottom: bottomPadding,
       child: GestureDetector(
         onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AddPlannedMealScreen(
+                selectedDate: vm.currentDate,
+              ),
+            ),
+          );
         },
         child: SizedBox(
           width: buttonSize,

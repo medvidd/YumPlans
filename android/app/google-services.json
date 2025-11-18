@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "580869795603",
+    "project_id": "yumplans-app-2025",
+    "storage_bucket": "yumplans-app-2025.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:580869795603:android:70abcf67d6f8f36fb234e6",
+        "android_client_info": {
+          "package_name": "com.example.yum_plan"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB32ExiI22NzKoqIbmkGCrImO1aSP2O7ew"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
