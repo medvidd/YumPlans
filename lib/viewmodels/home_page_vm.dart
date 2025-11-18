@@ -6,12 +6,16 @@ import '/views/planner/planner_screen.dart';
 import '/views/recipes/recipes_screen.dart';
 import '/views/groceries/groceries_screen.dart';
 import '/views/profile/profile_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+
 
 class HomePageViewModel extends ChangeNotifier {
   int _selectedIndex = 0;
   final String _formattedDate = DateFormat('E, dd/MM').format(DateTime.now());
 
-  final int dailyCalorieGoal = 2000;
+  int _dailyCalorieGoal = 2000;
+  int get dailyCalorieGoal => _dailyCalorieGoal;
 
   int get selectedIndex => _selectedIndex;
   String get formattedDate => _formattedDate;
@@ -22,7 +26,15 @@ class HomePageViewModel extends ChangeNotifier {
   int get consumedCalories => _todayMeals.fold(0, (sum, meal) => sum + meal.recipe.calories);
 
   HomePageViewModel() {
+    _loadData();
+  }
+
+  void _loadData() async {
     _loadTodayMeals();
+
+    final prefs = await SharedPreferences.getInstance();
+    _dailyCalorieGoal = prefs.getInt('calorie_goal') ?? 2000;
+    notifyListeners();
   }
 
   void _loadTodayMeals() {

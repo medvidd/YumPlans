@@ -232,7 +232,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildStatisticsCard(BuildContext context, ProfileViewModel vm, bool isTablet) {
-
     final double titleFontSize = isTablet ? 24 : 20;
     final double bodyFontSize = isTablet ? 18 : 16;
     final double smallFontSize = isTablet ? 16 : 14;
@@ -250,14 +249,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'My Statistics',
-            style: TextStyle(
-              color: const Color(0xFF6C5206),
-              fontSize: titleFontSize,
-              fontFamily: 'Kantumruy Pro',
-              fontWeight: FontWeight.w600,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'My Statistics',
+                style: TextStyle(
+                  color: const Color(0xFF6C5206),
+                  fontSize: titleFontSize,
+                  fontFamily: 'Kantumruy Pro',
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              GestureDetector(
+                onTap: () => _showEditGoalDialog(context, vm),
+                child: const Icon(Icons.edit, color: Color(0xFF6C5206), size: 20),
+              ),
+            ],
           ),
           SizedBox(height: isTablet ? 10 : 5),
           Row(
@@ -272,7 +280,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
               Text(
-                '0 kcal',
+                '${vm.calorieGoal} kcal',
                 style: TextStyle(
                   color: const Color(0xFF6C5206),
                   fontSize: bodyFontSize,
@@ -318,6 +326,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showEditGoalDialog(BuildContext context, ProfileViewModel vm) {
+    final TextEditingController controller = TextEditingController(text: vm.calorieGoal.toString());
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFFFFFBF0),
+          title: const Text('Set Daily Goal', style: TextStyle(color: Color(0xFF4B572B))),
+          content: TextField(
+            controller: controller,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+              labelText: 'Calories (kcal)',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel', style: TextStyle(color: Color(0xFF981800))),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFABBA72)),
+              onPressed: () {
+                vm.updateCalorieGoal(controller.text);
+                Navigator.pop(context);
+              },
+              child: const Text('Save', style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        );
+      },
     );
   }
 

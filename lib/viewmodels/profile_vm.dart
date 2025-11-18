@@ -7,6 +7,9 @@ import '/views/groceries/groceries_screen.dart';
 import '/views/recipes/recipes_screen.dart';
 import '/views/auth/sign_in_v.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+
 
 class ProfileViewModel extends ChangeNotifier {
   final TextEditingController searchController = TextEditingController();
@@ -19,8 +22,29 @@ class ProfileViewModel extends ChangeNotifier {
   String userName = "Loading...";
   String userEmail = "Loading...";
 
+  int _calorieGoal = 2000;
+  int get calorieGoal => _calorieGoal;
+
   ProfileViewModel() {
     _loadUserData();
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    _calorieGoal = prefs.getInt('calorie_goal') ?? 2000;
+    notifyListeners();
+  }
+
+  Future<void> updateCalorieGoal(String newGoalStr) async {
+    int? newGoal = int.tryParse(newGoalStr);
+    if (newGoal != null && newGoal > 0) {
+      _calorieGoal = newGoal;
+      notifyListeners();
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('calorie_goal', newGoal);
+    }
   }
 
   void _loadUserData() {
