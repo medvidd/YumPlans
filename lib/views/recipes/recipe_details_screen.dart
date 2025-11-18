@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '/models/recipe_model.dart';
+import 'create_recipe_screen.dart';
 
 class RecipeDetailsScreen extends StatelessWidget {
   final Recipe recipe;
@@ -48,13 +49,21 @@ class RecipeDetailsScreen extends StatelessWidget {
           _buildActionButton(
             iconPath: 'assets/images/edit_icon.svg',
             color: const Color(0xFF4B572B),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CreateRecipeScreen(recipe: recipe),
+                ),
+              );
+            },
           ),
           const SizedBox(width: 8),
           _buildActionButton(
             iconPath: 'assets/images/trash.svg',
             color: const Color(0xFF991800),
-            onTap: () {},
+            onTap: () {
+            },
             marginRight: 16,
           ),
         ],

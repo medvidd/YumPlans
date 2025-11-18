@@ -27,9 +27,14 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
       _caloriesController.text = widget.recipe!.calories.toString();
       _descriptionController.text = widget.recipe!.description;
       _selectedMealType = widget.recipe!.mealType;
+
       _ingredients = widget.recipe!.ingredients
           .map((e) => Ingredient(name: e.name, amount: e.amount))
           .toList();
+    } else {
+      if (_ingredients.isEmpty) {
+        _ingredients.add(Ingredient(name: '', amount: ''));
+      }
     }
   }
 
@@ -82,6 +87,8 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
     final double horizontalPadding = isTablet ? 80.0 : 24.0;
     final double imageSize = isTablet ? 400 : 320;
 
+    final String screenTitle = widget.recipe != null ? 'EDIT RECIPE' : 'NEW RECIPE';
+
     return Scaffold(
       backgroundColor: const Color(0xFFFFFBF0),
       appBar: AppBar(
@@ -92,9 +99,9 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
           icon: const Icon(Icons.arrow_back, color: Color(0xFF4B572B)),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'RECIPE CARD',
-          style: TextStyle(
+        title: Text(
+          screenTitle,
+          style: const TextStyle(
             color: Color(0xFF4B572B),
             fontSize: 24,
             fontFamily: 'Kantumruy Pro',
@@ -153,28 +160,16 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
                               borderRadius: BorderRadius.circular(30),
                             ),
                           ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(
-                                width: 80, height: 80,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: const Color(0xFFB8B5AD), width: 4),
-                                ),
-                                child: const Icon(Icons.add, size: 40, color: Color(0xFFB8B5AD)),
-                              ),
-                              const SizedBox(height: 16),
-                              const Text(
-                                'UPLOAD IMAGE',
-                                style: TextStyle(
-                                  color: Color(0xFF9B9889),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
+                          child: widget.recipe != null && widget.recipe!.imageUrl.isNotEmpty
+                              ? ClipRRect(
+                            borderRadius: BorderRadius.circular(30),
+                            child: Image.asset(
+                              widget.recipe!.imageUrl,
+                              fit: BoxFit.cover,
+                              errorBuilder: (ctx, err, stack) => _buildUploadPlaceholder(),
+                            ),
+                          )
+                              : _buildUploadPlaceholder(),
                         ),
                       ),
 
@@ -328,6 +323,7 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
                                       child: SizedBox(
                                         height: 40,
                                         child: TextFormField(
+                                          key: ValueKey('name_$index'),
                                           initialValue: ingredient.name,
                                           style: const TextStyle(color: Color(0xFF981800), fontSize: 15),
                                           decoration: _buildFigmaInputDecoration('Name'),
@@ -345,6 +341,7 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
                                       child: SizedBox(
                                         height: 40,
                                         child: TextFormField(
+                                          key: ValueKey('amount_$index'),
                                           initialValue: ingredient.amount,
                                           textAlign: TextAlign.center,
                                           style: const TextStyle(color: Color(0xFF981800), fontSize: 15),
@@ -390,7 +387,7 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
               ),
 
               Container(
-                height: 40,
+                height: 20,
                 width: double.infinity,
                 color: const Color(0xFFFFFBF0),
               ),
@@ -398,6 +395,31 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildUploadPlaceholder() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          width: 80, height: 80,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: const Color(0xFFB8B5AD), width: 4),
+          ),
+          child: const Icon(Icons.add, size: 40, color: Color(0xFFB8B5AD)),
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          'UPLOAD IMAGE',
+          style: TextStyle(
+            color: Color(0xFF9B9889),
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 }
