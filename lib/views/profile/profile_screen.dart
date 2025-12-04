@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '/viewmodels/profile_vm.dart';
 import '/widgets/bottom_nav_w.dart';
 import '/widgets/common_app_bar_w.dart';
+import '../../fb_services/upload_service.dart';
+
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -13,9 +15,16 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  // Константи стилю
   static const double kTabletBreakpoint = 600.0;
   static const double kMaxContentWidth = 800.0;
   static const double kHorizontalPadding = 24.0;
+
+  // Кольори проекту
+  final Color primaryGreen = const Color(0xFF4B572B);
+  final Color lightGreen = const Color(0xFFABBA72);
+  final Color bgCream = const Color(0xFFFFFBF0);
+  final Color accentOrange = const Color(0xFFDF6149);
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +37,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Consumer<ProfileViewModel>(
         builder: (context, vm, child) {
           return Scaffold(
-            backgroundColor: const Color(0xFFFFFBF0),
+            backgroundColor: bgCream,
             appBar: CommonAppBar(
               title: 'PROFILE',
               screenHeight: screenHeight,
@@ -72,15 +81,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  // --- КАРТКА ПРОФІЛЮ ---
   Widget _buildProfileCard(BuildContext context, ProfileViewModel vm, bool isTablet) {
-
     final double avatarSize = isTablet ? 100 : 70;
-    final double avatarIconSize = isTablet ? 60 : 40;
-    final double nameFontSize = isTablet ? 24 : 20;
-    final double emailFontSize = isTablet ? 18 : 16;
-    final double buttonHeight = isTablet ? 55 : 45;
-    final double buttonFontSize = isTablet ? 18 : 16;
-    final double buttonIconSize = isTablet ? 22 : 18;
+
+    // Відображення аватара: якщо є URL, показуємо картинку, інакше SVG
+    Widget avatarWidget;
+    if (vm.photoUrl != null && vm.photoUrl!.isNotEmpty) {
+      avatarWidget = ClipRRect(
+        borderRadius: BorderRadius.circular(avatarSize / 2),
+        child: Image.network(
+          vm.photoUrl!,
+          width: avatarSize,
+          height: avatarSize,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => _buildDefaultAvatar(avatarSize, isTablet),
+        ),
+      );
+    } else {
+      avatarWidget = _buildDefaultAvatar(avatarSize, isTablet);
+    }
 
     return Container(
       width: double.infinity,
@@ -112,14 +132,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     borderRadius: BorderRadius.circular(avatarSize / 2),
                   ),
                 ),
-                child: Center(
-                  child: SvgPicture.asset(
-                    'assets/images/user.svg',
-                    width: avatarIconSize,
-                    height: avatarIconSize,
-                    colorFilter: const ColorFilter.mode(Color(0xFF708240), BlendMode.srcIn),
-                  ),
-                ),
+                child: Center(child: avatarWidget),
               ),
               SizedBox(width: isTablet ? 30 : 20),
               Expanded(
@@ -129,8 +142,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Text(
                       vm.userName,
                       style: TextStyle(
-                        color: const Color(0xFF4B572B),
-                        fontSize: nameFontSize,
+                        color: primaryGreen,
+                        fontSize: isTablet ? 24 : 20,
                         fontFamily: 'Kantumruy Pro',
                         fontWeight: FontWeight.w700,
                       ),
@@ -139,7 +152,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       vm.userEmail,
                       style: TextStyle(
                         color: const Color(0xFF8A8A8A),
-                        fontSize: emailFontSize,
+                        fontSize: isTablet ? 18 : 16,
                         fontStyle: FontStyle.italic,
                         fontFamily: 'Kantumruy Pro',
                         fontWeight: FontWeight.w300,
@@ -155,47 +168,47 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Row(
             children: [
               Expanded(
-                child: Container(
-                  height: buttonHeight,
-                  decoration: ShapeDecoration(
-                    color: const Color(0xFF4B572B),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25),
+                child: GestureDetector(
+                  onTap: () => _showEditProfileDialog(context, vm),
+                  child: Container(
+                    height: isTablet ? 55 : 45,
+                    decoration: ShapeDecoration(
+                      color: primaryGreen,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25),
+                      ),
                     ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SvgPicture.asset(
-                        'assets/images/edit_icon.svg',
-                        width: buttonIconSize,
-                        height: buttonIconSize,
-                        colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        'Edit Profile',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: buttonFontSize,
-                          fontFamily: 'Kantumruy Pro',
-                          fontWeight: FontWeight.w500,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset(
+                          'assets/images/edit_icon.svg',
+                          width: isTablet ? 22 : 18,
+                          colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 10),
+                        Text(
+                          'Edit Profile',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: isTablet ? 18 : 16,
+                            fontFamily: 'Kantumruy Pro',
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: GestureDetector(
-                  onTap: () {
-                    vm.logOut(context);
-                  },
+                  onTap: () => vm.logOut(context),
                   child: Container(
-                    height: buttonHeight,
+                    height: isTablet ? 55 : 45,
                     decoration: ShapeDecoration(
-                      color: const Color(0xFFDF6149),
+                      color: accentOrange,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(25),
                       ),
@@ -205,8 +218,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       children: [
                         SvgPicture.asset(
                           'assets/images/log_out.svg',
-                          width: buttonIconSize,
-                          height: buttonIconSize,
+                          width: isTablet ? 22 : 18,
                           colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                         ),
                         const SizedBox(width: 10),
@@ -214,7 +226,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           'Log Out',
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: buttonFontSize,
+                            fontSize: isTablet ? 18 : 16,
                             fontFamily: 'Kantumruy Pro',
                             fontWeight: FontWeight.w500,
                           ),
@@ -231,11 +243,155 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildStatisticsCard(BuildContext context, ProfileViewModel vm, bool isTablet) {
-    final double titleFontSize = isTablet ? 24 : 20;
-    final double bodyFontSize = isTablet ? 18 : 16;
-    final double smallFontSize = isTablet ? 16 : 14;
+  Widget _buildDefaultAvatar(double size, bool isTablet) {
+    return SvgPicture.asset(
+      'assets/images/user.svg',
+      width: isTablet ? 60 : 40,
+      height: isTablet ? 60 : 40,
+      colorFilter: const ColorFilter.mode(Color(0xFF708240), BlendMode.srcIn),
+    );
+  }
 
+  // --- ДІАЛОГ РЕДАГУВАННЯ ПРОФІЛЮ ---
+  // ... всередині класу _ProfileScreenState
+
+  // --- ДІАЛОГ РЕДАГУВАННЯ ПРОФІЛЮ ---
+  void _showEditProfileDialog(BuildContext context, ProfileViewModel vm) {
+    final nameController = TextEditingController(text: vm.userName);
+    // Контролер для фото, початкове значення - поточний URL
+    final photoController = TextEditingController(text: vm.photoUrl ?? '');
+
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Забороняємо закривати кліком повз вікно, поки йде завантаження
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return AlertDialog(
+              backgroundColor: const Color(0xFFFFFBF0),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              title: const Text('Edit Profile',
+                  style: TextStyle(color: Color(0xFF4B572B), fontFamily: 'Kantumruy Pro', fontWeight: FontWeight.bold)),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // --- БЛОК ВИБОРУ ФОТО ---
+                    GestureDetector(
+                      onTap: () async {
+                        // 1. Викликаємо метод ViewModel для завантаження в Supabase
+                        String? newUrl = await vm.pickImage(context);
+
+                        // 2. Якщо отримали URL, оновлюємо контролер і прев'ю
+                        if (newUrl != null) {
+                          setStateDialog(() {
+                            photoController.text = newUrl;
+                          });
+                        }
+                      },
+                      child: Stack(
+                        alignment: Alignment.bottomRight,
+                        children: [
+                          Container(
+                            width: 100,
+                            height: 100,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: const Color(0xFF708240), width: 2),
+                              color: Colors.white,
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(50),
+                              child: photoController.text.isNotEmpty
+                                  ? Image.network(
+                                photoController.text,
+                                fit: BoxFit.cover,
+                                // Додаємо лоадер для самої картинки
+                                loadingBuilder: (ctx, child, progress) {
+                                  if (progress == null) return child;
+                                  return const Center(child: CircularProgressIndicator(strokeWidth: 2));
+                                },
+                                errorBuilder: (_, __, ___) => const Icon(Icons.person, size: 50, color: Colors.grey),
+                              )
+                                  : const Icon(Icons.person, size: 50, color: Colors.grey),
+                            ),
+                          ),
+                          // Іконка камери
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: const BoxDecoration(
+                              color: Color(0xFF4B572B),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.camera_alt, size: 18, color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      "Tap to change photo",
+                      style: TextStyle(color: Color(0xFF8A8A8A), fontSize: 12),
+                    ),
+                    const SizedBox(height: 20),
+
+                    // --- ПОЛЯ ВВОДУ ---
+                    TextField(
+                      controller: nameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Full Name',
+                        labelStyle: TextStyle(color: Color(0xFF4B572B)),
+                        focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Color(0xFF4B572B))),
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                // --- КНОПКА CANCEL (З ЕФЕКТОМ) ---
+                TextButton(
+                  // foregroundColor робить текст І ефект натискання помаранчевим
+                  style: TextButton.styleFrom(
+                    foregroundColor: const Color(0xFFDF6149),
+                  ),
+                  onPressed: vm.isLoading ? null : () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
+                // --- КНОПКА SAVE (З ЕФЕКТОМ) ---
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFABBA72),
+                    foregroundColor: Colors.white, // Білий текст і біла хвиля при натисканні
+                    disabledBackgroundColor: const Color(0xFFABBA72).withOpacity(0.6),
+                  ),
+                  onPressed: vm.isLoading
+                      ? null
+                      : () {
+                    vm.updateUserProfile(
+                      context,
+                      newName: nameController.text.trim(),
+                      newPhotoUrl: photoController.text,
+                    );
+                  },
+                  child: vm.isLoading
+                      ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
+                  )
+                      : const Text('Save'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  // --- КАРТКА СТАТИСТИКИ (без змін) ---
+  Widget _buildStatisticsCard(BuildContext context, ProfileViewModel vm, bool isTablet) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: isTablet ? 24 : 16, vertical: isTablet ? 20 : 15),
@@ -256,7 +412,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 'My Statistics',
                 style: TextStyle(
                   color: const Color(0xFF6C5206),
-                  fontSize: titleFontSize,
+                  fontSize: isTablet ? 24 : 20,
                   fontFamily: 'Kantumruy Pro',
                   fontWeight: FontWeight.w600,
                 ),
@@ -274,7 +430,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 'Calorie goal : ',
                 style: TextStyle(
                   color: const Color(0xFF6C5206),
-                  fontSize: bodyFontSize,
+                  fontSize: isTablet ? 18 : 16,
                   fontFamily: 'Kantumruy Pro',
                   fontWeight: FontWeight.w600,
                 ),
@@ -283,7 +439,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 '${vm.calorieGoal} kcal',
                 style: TextStyle(
                   color: const Color(0xFF6C5206),
-                  fontSize: bodyFontSize,
+                  fontSize: isTablet ? 18 : 16,
                   fontFamily: 'Kantumruy Pro',
                   fontWeight: FontWeight.w300,
                 ),
@@ -308,7 +464,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 'Average : 0 kcal ',
                 style: TextStyle(
                   color: const Color(0xFF6C5206),
-                  fontSize: smallFontSize,
+                  fontSize: isTablet ? 16 : 14,
                   fontFamily: 'Kantumruy Pro',
                   fontWeight: FontWeight.w500,
                 ),
@@ -317,7 +473,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 'Last Week',
                 style: TextStyle(
                   color: const Color(0xFF6C5206),
-                  fontSize: smallFontSize,
+                  fontSize: isTablet ? 16 : 14,
                   fontFamily: 'Kantumruy Pro',
                   fontWeight: FontWeight.w500,
                 ),
@@ -331,33 +487,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   void _showEditGoalDialog(BuildContext context, ProfileViewModel vm) {
     final TextEditingController controller = TextEditingController(text: vm.calorieGoal.toString());
-
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: const Color(0xFFFFFBF0),
-          title: const Text('Set Daily Goal', style: TextStyle(color: Color(0xFF4B572B))),
+          backgroundColor: bgCream,
+          title: Text('Set Daily Goal', style: TextStyle(color: primaryGreen)),
           content: TextField(
             controller: controller,
             keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: 'Calories (kcal)',
-              border: OutlineInputBorder(),
-            ),
+            decoration: const InputDecoration(labelText: 'Calories (kcal)', border: OutlineInputBorder()),
           ),
           actions: [
             TextButton(
+              style: TextButton.styleFrom(foregroundColor: accentOrange), // Помаранчевий ефект
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel', style: TextStyle(color: Color(0xFF981800))),
+              child: const Text('Cancel'),
             ),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFABBA72)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: lightGreen,
+                foregroundColor: Colors.white, // Білий ефект
+              ),
               onPressed: () {
                 vm.updateCalorieGoal(controller.text);
                 Navigator.pop(context);
               },
-              child: const Text('Save', style: TextStyle(color: Colors.white)),
+              child: const Text('Save'),
             ),
           ],
         );
@@ -365,12 +521,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  // --- КАРТКА НАЛАШТУВАНЬ (з навігацією) ---
   Widget _buildSettingsCard(BuildContext context, ProfileViewModel vm, bool isTablet) {
-
-    final double titleFontSize = isTablet ? 26 : 22;
-    final double itemFontSize = isTablet ? 18 : 16;
-    final double iconSize = isTablet ? 28 : 24;
-
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: isTablet ? 24 : 16, vertical: isTablet ? 20 : 10),
@@ -391,8 +543,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Text(
             'Settings',
             style: TextStyle(
-              color: const Color(0xFF4B572B),
-              fontSize: titleFontSize,
+              color: primaryGreen,
+              fontSize: isTablet ? 26 : 22,
               fontFamily: 'Kantumruy Pro',
               fontWeight: FontWeight.w600,
             ),
@@ -403,27 +555,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
             isTablet: isTablet,
             iconAsset: 'assets/images/notifications.svg',
             text: 'Notifications',
-            fontSize: itemFontSize,
-            iconSize: iconSize,
             showSwitch: true,
           ),
-          Divider(indent: 1, height: 1, color: Colors.black12),
+          const Divider(indent: 1, height: 1, color: Colors.black12),
           _buildSettingsRow(
             vm: vm,
             isTablet: isTablet,
             iconAsset: 'assets/images/lock.svg',
             text: 'Privacy',
-            fontSize: itemFontSize,
-            iconSize: iconSize,
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (c) => PrivacyScreen(viewModel: vm)));
+            },
           ),
-          Divider(indent: 1, height: 1, color: Colors.black12),
+          const Divider(indent: 1, height: 1, color: Colors.black12),
           _buildSettingsRow(
             vm: vm,
             isTablet: isTablet,
             iconAsset: 'assets/images/help.svg',
             text: 'Help & Support',
-            fontSize: itemFontSize,
-            iconSize: iconSize,
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (c) => const HelpSupportScreen()));
+            },
           ),
         ],
       ),
@@ -435,58 +587,233 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required bool isTablet,
     required String iconAsset,
     required String text,
-    required double fontSize,
-    required double iconSize,
     bool showSwitch = false,
+    VoidCallback? onTap,
   }) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: isTablet ? 12 : 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          SizedBox(
-            width: iconSize,
-            height: iconSize,
-            child: Center(
-              child: SvgPicture.asset(
-                iconAsset,
-                width: iconSize * 0.9,
-                height: iconSize * 0.9,
-                colorFilter: const ColorFilter.mode(Color(0xFF4B572B), BlendMode.srcIn),
-              ),
-            ),
-          ),
-          SizedBox(width: isTablet ? 20 : 16),
-          Expanded(
-            child: Text(
-              text,
-              style: TextStyle(
-                color: const Color(0xFF4B572B),
-                fontSize: fontSize,
-                fontFamily: 'Kantumruy Pro',
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          ),
-          if (showSwitch)
+    final double fontSize = isTablet ? 18 : 16;
+    final double iconSize = isTablet ? 28 : 24;
+
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: isTablet ? 12 : 8),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
             SizedBox(
+              width: iconSize,
               height: iconSize,
-              child: Transform.scale(
-                  scale: isTablet ? 0.9 : 0.73,
-                  alignment: Alignment.center,
-                  child: Switch(
-                    value: vm.areNotificationsEnabled,
-                    onChanged: (bool newValue) {
-                      vm.toggleNotifications(newValue);
-                    },
-                    activeThumbColor: Colors.white,
-                    activeTrackColor: const Color(0xFFDF6149),
-                    inactiveThumbColor: Colors.white,
-                    inactiveTrackColor: Colors.grey.shade400,
-                  )
+              child: Center(
+                child: SvgPicture.asset(
+                  iconAsset,
+                  width: iconSize * 0.9,
+                  height: iconSize * 0.9,
+                  colorFilter: ColorFilter.mode(primaryGreen, BlendMode.srcIn),
+                ),
               ),
             ),
+            SizedBox(width: isTablet ? 20 : 16),
+            Expanded(
+              child: Text(
+                text,
+                style: TextStyle(
+                  color: primaryGreen,
+                  fontSize: fontSize,
+                  fontFamily: 'Kantumruy Pro',
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ),
+            if (showSwitch)
+              SizedBox(
+                height: iconSize,
+                child: Transform.scale(
+                    scale: isTablet ? 0.9 : 0.73,
+                    alignment: Alignment.center,
+                    child: Switch(
+                      value: vm.areNotificationsEnabled,
+                      onChanged: (bool newValue) {
+                        vm.toggleNotifications(newValue);
+                      },
+                      activeThumbColor: Colors.white,
+                      activeTrackColor: accentOrange,
+                      inactiveThumbColor: Colors.white,
+                      inactiveTrackColor: Colors.grey.shade400,
+                    )
+                ),
+              )
+            else
+              Icon(Icons.arrow_forward_ios, size: 16, color: primaryGreen.withOpacity(0.5)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// --- PRIVACY SCREEN ---
+class PrivacyScreen extends StatelessWidget {
+  final ProfileViewModel viewModel;
+  const PrivacyScreen({super.key, required this.viewModel});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFFFFBF0),
+      appBar: AppBar(
+        title: const Text('Privacy & Security', style: TextStyle(color: Color(0xFF4B572B), fontFamily: 'Kantumruy Pro', fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Color(0xFF4B572B)),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          children: [
+            _buildOptionTile(
+              context,
+              title: 'Change Email',
+              subtitle: viewModel.userEmail,
+              icon: Icons.email_outlined,
+              onTap: () => _showChangeEmailDialog(context),
+            ),
+            const SizedBox(height: 16),
+            _buildOptionTile(
+              context,
+              title: 'Change Password',
+              subtitle: 'Last changed: recently',
+              icon: Icons.lock_outline,
+              onTap: () => _showChangePasswordDialog(context),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOptionTile(BuildContext context, {required String title, required String subtitle, required IconData icon, required VoidCallback onTap}) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.1), blurRadius: 5)],
+      ),
+      child: ListTile(
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(color: const Color(0x20ABBA72), borderRadius: BorderRadius.circular(8)),
+          child: Icon(icon, color: const Color(0xFF4B572B)),
+        ),
+        title: Text(title, style: const TextStyle(color: Color(0xFF4B572B), fontWeight: FontWeight.bold)),
+        subtitle: Text(subtitle),
+        trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+        onTap: onTap,
+      ),
+    );
+  }
+
+  void _showChangeEmailDialog(BuildContext context) {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFFFFFBF0),
+        title: const Text('Update Email', style: TextStyle(color: Color(0xFF4B572B))),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(labelText: 'New Email Address', border: OutlineInputBorder()),
+        ),
+        actions: [
+          TextButton(
+              style: TextButton.styleFrom(foregroundColor: const Color(0xFFDF6149)),
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel')
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFABBA72),
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => viewModel.updateEmail(context, controller.text),
+            child: const Text('Update'),
+          ),
         ],
+      ),
+    );
+  }
+
+  void _showChangePasswordDialog(BuildContext context) {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFFFFFBF0),
+        title: const Text('Update Password', style: TextStyle(color: Color(0xFF4B572B))),
+        content: TextField(
+          controller: controller,
+          obscureText: true,
+          decoration: const InputDecoration(labelText: 'New Password', border: OutlineInputBorder()),
+        ),
+        actions: [
+          TextButton(
+              style: TextButton.styleFrom(foregroundColor: const Color(0xFFDF6149)),
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel')
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFABBA72),
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => viewModel.updatePassword(context, controller.text),
+            child: const Text('Update'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// --- HELP & SUPPORT SCREEN ---
+class HelpSupportScreen extends StatelessWidget {
+  const HelpSupportScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFFFFBF0),
+      appBar: AppBar(
+        title: const Text('Help & Support', style: TextStyle(color: Color(0xFF4B572B), fontFamily: 'Kantumruy Pro', fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Color(0xFF4B572B)),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SvgPicture.asset(
+              'assets/images/help.svg',
+              width: 80,
+              height: 80,
+              colorFilter: const ColorFilter.mode(Color(0xFFABBA72), BlendMode.srcIn),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'How can we help you?',
+              style: TextStyle(color: Color(0xFF4B572B), fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 40),
+              child: Text(
+                'Contact our support team at support@example.com for assistance with your account or app features.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

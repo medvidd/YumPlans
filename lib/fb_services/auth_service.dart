@@ -29,4 +29,34 @@ class AuthService {
   Future<void> sendPasswordResetEmail({required String email}) {
     return _firebaseAuth.sendPasswordResetEmail(email: email);
   }
+
+  Future<void> updateDisplayName(String newName) async {
+    User? user = _firebaseAuth.currentUser;
+    if (user != null) {
+      await user.updateDisplayName(newName);
+      await user.reload();
+    }
+  }
+
+  Future<void> updatePhotoURL(String photoUrl) async {
+    User? user = _firebaseAuth.currentUser;
+    if (user != null) {
+      await user.updatePhotoURL(photoUrl);
+      await user.reload();
+    }
+  }
+
+  Future<void> updateEmail(String newEmail) async {
+    User? user = _firebaseAuth.currentUser;
+    if (user != null) {
+      await user.verifyBeforeUpdateEmail(newEmail);
+    }
+  }
+
+  Future<void> updatePassword(String newPassword) async {
+    User? user = _firebaseAuth.currentUser;
+    if (user != null) {
+      await user.updatePassword(newPassword);
+    }
+  }
 }
