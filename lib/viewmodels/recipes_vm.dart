@@ -4,82 +4,134 @@ import '/views/home_page.dart';
 import '/views/planner/planner_screen.dart';
 import '/views/groceries/groceries_screen.dart';
 import '/views/profile/profile_screen.dart';
+import 'package:uuid/uuid.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../fb_services/firestore_service.dart';
+import '../fb_services/upload_service.dart';
 
 class RecipesViewModel extends ChangeNotifier {
+  final FirestoreService _firestoreService = FirestoreService();
+  final UploadService _uploadService = UploadService();
   final TextEditingController searchController = TextEditingController();
+
   int selectedIndex = 3;
-
   bool _isLoading = false;
-  bool get isLoading => _isLoading;
-
   String? _errorMessage;
-  String? get errorMessage => _errorMessage;
-
   List<Recipe> _recipes = [];
-  List<Recipe> get recipes => _recipes;
+  List<Recipe> _filteredRecipes = [];
+
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+  List<Recipe> get recipes => searchController.text.isEmpty ? _recipes : _filteredRecipes;
 
   RecipesViewModel() {
     fetchRecipes();
+    searchController.addListener(_onSearchChanged);
   }
 
   Future<void> fetchRecipes() async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-
+    _setLoading(true);
     try {
-      await Future.delayed(const Duration(milliseconds: 2000));
+      _recipes = await _firestoreService.getUserRecipes();
 
-      //throw Exception("Failed to load recipes");
+      if (searchController.text.isNotEmpty) {
+        _onSearchChanged();
+      }
 
-      _recipes = [
-        Recipe(
-          id: '1',
-          title: 'Eggs with tomatoes',
-          imageUrl: 'assets/images/eggs_tomatoes.jpg',
-          calories: 180,
-          mealType: MealType.breakfast,
-          description: 'A delicious and healthy breakfast with eggs and fresh tomatoes.',
-          ingredients: [
-            Ingredient(name: 'Eggs', amount: '2'),
-            Ingredient(name: 'Tomatoes', amount: '5'),
-            Ingredient(name: 'Bread', amount: '1'),
-          ],
-        ),
-        Recipe(
-          id: '2',
-          title: 'Pizza rolls',
-          imageUrl: 'assets/images/pizza_rolls.jpg',
-          calories: 350,
-          mealType: MealType.snack,
-          description: 'Easy to make pizza rolls perfect for a quick snack.',
-          ingredients: [
-            Ingredient(name: 'Dough', amount: '200 g'),
-            Ingredient(name: 'Cheese', amount: '100 g'),
-            Ingredient(name: 'Ham', amount: '50 g'),
-          ],
-        ),
-        Recipe(
-          id: '3',
-          title: 'Oatmeal with berries',
-          imageUrl: 'assets/images/oatmeal.jpg',
-          calories: 220,
-          mealType: MealType.breakfast,
-          description: 'Nutritious oatmeal topped with fresh forest berries.',
-          ingredients: [
-            Ingredient(name: 'Oats', amount: '50 g'),
-            Ingredient(name: 'Milk', amount: '200 ml'),
-            Ingredient(name: 'Berries', amount: '50 g'),
-          ],
-        ),
-      ];
+      _errorMessage = null;
     } catch (e) {
-      _errorMessage = "Something went wrong. Please try again.";
-      _recipes = [];
+      _errorMessage = "Failed to load recipes. Please try again.";
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _setLoading(false);
     }
+  }
+
+  Future<void> addRecipe({
+    required String title,
+    required String imageUrl,
+    required int calories,
+    required MealType mealType,
+    required String description,
+    required List<Ingredient> ingredients,
+  }) async {
+    _setLoading(true);
+    try {
+      final userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+      if (userId.isEmpty) throw Exception('User not logged in');
+
+      final newRecipe = Recipe(
+        id: const Uuid().v4(), // Генеруємо унікальний ID
+        userId: userId,
+        title: title,
+        imageUrl: imageUrl,
+        calories: calories,
+        mealType: mealType,
+        description: description,
+        ingredients: ingredients,
+      );
+
+      await _firestoreService.addRecipe(newRecipe);
+      await fetchRecipes(); // Оновлюємо список
+    } catch (e) {
+      _errorMessage = e.toString();
+      notifyListeners();
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<void> updateRecipe(Recipe updatedRecipe) async {
+    _setLoading(true);
+    try {
+      await _firestoreService.updateRecipe(updatedRecipe);
+      await fetchRecipes();
+    } catch (e) {
+      _errorMessage = e.toString();
+      notifyListeners();
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<void> deleteRecipe(String recipeId) async {
+    _setLoading(true);
+    try {
+      await _firestoreService.deleteRecipe(recipeId);
+      await fetchRecipes();
+    } catch (e) {
+      _errorMessage = e.toString();
+      notifyListeners();
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<String?> uploadImage() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return null;
+    return await _uploadService.pickAndUploadImage(userId: userId, folder: 'recipes');
+  }
+
+  void _onSearchChanged() {
+    final query = searchController.text.toLowerCase();
+
+    if (query.isEmpty) {
+      _filteredRecipes = [];
+    } else {
+      _filteredRecipes = _recipes.where((recipe) {
+        final titleMatch = recipe.title.toLowerCase().contains(query);
+        final ingredientMatch = recipe.ingredients.any((i) => i.name.toLowerCase().contains(query));
+        final tagMatch = recipe.mealType.label.toLowerCase().contains(query);
+
+        return titleMatch || ingredientMatch || tagMatch;
+      }).toList();
+    }
+    notifyListeners();
+  }
+
+  void _setLoading(bool value) {
+    _isLoading = value;
+    notifyListeners();
   }
 
   void onItemTapped(BuildContext context, int index) {

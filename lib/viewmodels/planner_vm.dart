@@ -38,10 +38,10 @@ class PlannerViewModel extends ChangeNotifier {
     _today = DateTime.now().toUtc().add(const Duration(hours: 3));
     currentDate = _today;
     focusedMonth = DateTime(_today.year, _today.month, 1);
-    _loadDummyData();
+    //_loadDummyData();
   }
 
-  void _loadDummyData() {
+  /*void _loadDummyData() {
     final dummyRecipe = Recipe(
       id: '1',
       title: 'Eggs with tomatoes',
@@ -77,7 +77,7 @@ class PlannerViewModel extends ChangeNotifier {
       ),
     ];
     notifyListeners();
-  }
+  }*/
 
   void updateTodayIfNeeded() {
     final now = DateTime.now().toUtc().add(const Duration(hours: 3));

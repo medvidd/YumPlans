@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '/models/recipe_model.dart';
+import 'package:provider/provider.dart';
+import '/viewmodels/recipes_vm.dart';
 
 class CreateRecipeScreen extends StatefulWidget {
   final Recipe? recipe;
@@ -18,6 +20,7 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
 
   MealType _selectedMealType = MealType.breakfast;
   List<Ingredient> _ingredients = [];
+  String _imageUrl = '';
 
   @override
   void initState() {
@@ -27,6 +30,7 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
       _caloriesController.text = widget.recipe!.calories.toString();
       _descriptionController.text = widget.recipe!.description;
       _selectedMealType = widget.recipe!.mealType;
+      _imageUrl = widget.recipe!.imageUrl;
 
       _ingredients = widget.recipe!.ingredients
           .map((e) => Ingredient(name: e.name, amount: e.amount))
@@ -35,6 +39,57 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
       if (_ingredients.isEmpty) {
         _ingredients.add(Ingredient(name: '', amount: ''));
       }
+    }
+  }
+
+  Future<void> _saveRecipe(RecipesViewModel vm) async {
+    if (_titleController.text.isEmpty || _caloriesController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill required fields')),
+      );
+      return;
+    }
+
+    final int calories = int.tryParse(_caloriesController.text) ?? 0;
+
+    // Фільтруємо пусті інгредієнти
+    final validIngredients = _ingredients.where((i) => i.name.isNotEmpty).toList();
+
+    if (widget.recipe == null) {
+      // Створення нового
+      await vm.addRecipe(
+        title: _titleController.text,
+        imageUrl: _imageUrl,
+        calories: calories,
+        mealType: _selectedMealType,
+        description: _descriptionController.text,
+        ingredients: validIngredients,
+      );
+    } else {
+      // Оновлення існуючого
+      final updatedRecipe = Recipe(
+        id: widget.recipe!.id,
+        userId: widget.recipe!.userId,
+        title: _titleController.text,
+        imageUrl: _imageUrl,
+        calories: calories,
+        mealType: _selectedMealType,
+        description: _descriptionController.text,
+        ingredients: validIngredients,
+      );
+      await vm.updateRecipe(updatedRecipe);
+    }
+
+    if (mounted) Navigator.pop(context);
+  }
+
+  // Метод завантаження фото
+  Future<void> _pickImage(RecipesViewModel vm) async {
+    final url = await vm.uploadImage();
+    if (url != null) {
+      setState(() {
+        _imageUrl = url;
+      });
     }
   }
 
@@ -82,6 +137,9 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final vm = Provider.of<RecipesViewModel>(context, listen: false);
+
+
     final screenWidth = MediaQuery.of(context).size.width;
     final bool isTablet = screenWidth > 600;
     final double horizontalPadding = isTablet ? 80.0 : 24.0;
@@ -127,9 +185,7 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
                 height: 28,
                 colorFilter: const ColorFilter.mode(Color(0xFF4B572B), BlendMode.srcIn),
               ),
-              onPressed: () {
-                Navigator.pop(context);
-              },
+              onPressed: () => _saveRecipe(vm),
             ),
           ),
         ],
@@ -150,26 +206,27 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
                     children: [
                       const SizedBox(height: 20),
 
-                      Center(
-                        child: Container(
-                          width: imageSize,
-                          height: imageSize,
-                          decoration: ShapeDecoration(
-                            color: const Color(0xFFE8E4DC),
-                            shape: RoundedRectangleBorder(
+                      GestureDetector(
+                        onTap: () => _pickImage(vm), // Натискання для вибору фото
+                        child: Center(
+                          child: Container(
+                            width: imageSize,
+                            height: imageSize,
+                            decoration: ShapeDecoration(
+                              color: const Color(0xFFE8E4DC),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                            ),
+                            child: _imageUrl.isNotEmpty
+                                ? ClipRRect(
                               borderRadius: BorderRadius.circular(30),
-                            ),
+                              child: Image.network( // Змінили на Network Image
+                                _imageUrl,
+                                fit: BoxFit.cover,
+                                errorBuilder: (ctx, err, stack) => _buildUploadPlaceholder(),
+                              ),
+                            )
+                                : _buildUploadPlaceholder(),
                           ),
-                          child: widget.recipe != null && widget.recipe!.imageUrl.isNotEmpty
-                              ? ClipRRect(
-                            borderRadius: BorderRadius.circular(30),
-                            child: Image.asset(
-                              widget.recipe!.imageUrl,
-                              fit: BoxFit.cover,
-                              errorBuilder: (ctx, err, stack) => _buildUploadPlaceholder(),
-                            ),
-                          )
-                              : _buildUploadPlaceholder(),
                         ),
                       ),
 
@@ -393,6 +450,11 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
               ),
             ],
           ),
+          if (context.watch<RecipesViewModel>().isLoading)
+            Container(
+              color: Colors.black45,
+              child: const Center(child: CircularProgressIndicator(color: Color(0xFFABBA72))),
+            ),
         ],
       ),
     );

@@ -51,11 +51,17 @@ class ProfileViewModel extends ChangeNotifier {
     String? downloadedUrl;
 
     try {
-      // Завантажуємо фото в Supabase
-      downloadedUrl = await _uploadService.pickAndUploadImage(_currentUser!.uid);
+      // ВИПРАВЛЕННЯ: Використовуємо іменовані параметри та вказуємо папку 'avatars'
+      downloadedUrl = await _uploadService.pickAndUploadImage(
+        userId: _currentUser!.uid,
+        folder: 'avatars',
+      );
 
-      // Якщо Url отримано, це успіх, але ми ще не зберігаємо його в Firebase,
-      // це станеться коли юзер натисне "Save"
+      if (downloadedUrl != null && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Image uploaded successfully! Click Save to apply.')),
+        );
+      }
     } catch (e) {
       if (context.mounted) _showError(context, "Upload failed: $e");
     }

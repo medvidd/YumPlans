@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 enum MealType {
   breakfast,
   lunch,
@@ -7,17 +9,19 @@ enum MealType {
 
   String get label {
     switch (this) {
-      case MealType.breakfast:
-        return 'Breakfast';
-      case MealType.lunch:
-        return 'Lunch';
-      case MealType.dinner:
-        return 'Dinner';
-      case MealType.snack:
-        return 'Snack';
-      case MealType.dessert:
-        return 'Dessert';
+      case MealType.breakfast: return 'Breakfast';
+      case MealType.lunch: return 'Lunch';
+      case MealType.dinner: return 'Dinner';
+      case MealType.snack: return 'Snack';
+      case MealType.dessert: return 'Dessert';
     }
+  }
+
+  static MealType fromString(String label) {
+    return MealType.values.firstWhere(
+          (e) => e.name == label,
+      orElse: () => MealType.breakfast,
+    );
   }
 }
 
@@ -26,10 +30,25 @@ class Ingredient {
   final String amount;
 
   Ingredient({required this.name, required this.amount});
+
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      'amount': amount,
+    };
+  }
+
+  factory Ingredient.fromMap(Map<String, dynamic> map) {
+    return Ingredient(
+      name: map['name'] ?? '',
+      amount: map['amount'] ?? '',
+    );
+  }
 }
 
 class Recipe {
   final String id;
+  final String userId;
   final String title;
   final String imageUrl;
   final int calories;
@@ -39,6 +58,7 @@ class Recipe {
 
   Recipe({
     required this.id,
+    required this.userId,
     required this.title,
     required this.imageUrl,
     required this.calories,
@@ -46,4 +66,36 @@ class Recipe {
     required this.description,
     required this.ingredients,
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'userId': userId,
+      'title': title,
+      'imageUrl': imageUrl,
+      'calories': calories,
+      'mealType': mealType.name, // Зберігаємо як рядок ("breakfast")
+      'description': description,
+      'ingredients': ingredients.map((x) => x.toMap()).toList(),
+      'createdAt': FieldValue.serverTimestamp(), // Час створення
+    };
+  }
+
+  // Створення об'єкта з документу Firestore
+  factory Recipe.fromMap(Map<String, dynamic> map, String docId) {
+    return Recipe(
+      id: docId, // ID документа Firestore
+      userId: map['userId'] ?? '',
+      title: map['title'] ?? '',
+      imageUrl: map['imageUrl'] ?? '',
+      calories: map['calories']?.toInt() ?? 0,
+      mealType: MealType.fromString(map['mealType'] ?? 'breakfast'),
+      description: map['description'] ?? '',
+      ingredients: List<Ingredient>.from(
+        (map['ingredients'] as List<dynamic>? ?? []).map<Ingredient>(
+              (x) => Ingredient.fromMap(x as Map<String, dynamic>),
+        ),
+      ),
+    );
+  }
 }

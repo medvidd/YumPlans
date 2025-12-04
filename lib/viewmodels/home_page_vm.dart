@@ -30,14 +30,14 @@ class HomePageViewModel extends ChangeNotifier {
   }
 
   void _loadData() async {
-    _loadTodayMeals();
+    //_loadTodayMeals();
 
     final prefs = await SharedPreferences.getInstance();
     _dailyCalorieGoal = prefs.getInt('calorie_goal') ?? 2000;
     notifyListeners();
   }
 
-  void _loadTodayMeals() {
+  /*void _loadTodayMeals() {
     final today = DateTime.now();
 
     final dummyRecipe1 = Recipe(
@@ -78,7 +78,7 @@ class HomePageViewModel extends ChangeNotifier {
     _todayMeals.sort((a, b) => a.dateTime.compareTo(b.dateTime));
 
     notifyListeners();
-  }
+  }*/
 
   void onItemTapped(BuildContext context, int index) {
     _selectedIndex = index;

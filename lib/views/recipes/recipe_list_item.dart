@@ -68,9 +68,26 @@ class RecipeListItem extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8)),
               ),
               clipBehavior: Clip.antiAlias,
-              child: Image.asset(
+              // ЗМІНА ТУТ: Використовуємо Image.network замість Asset
+              child: recipe.imageUrl.isNotEmpty
+                  ? Image.network(
                 recipe.imageUrl,
                 fit: BoxFit.cover,
+                // Показуємо спіннер, поки вантажиться
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Center(
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded /
+                          loadingProgress.expectedTotalBytes!
+                          : null,
+                      color: const Color(0xFFABBA72),
+                    ),
+                  );
+                },
+                // Показуємо заглушку, якщо помилка завантаження
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
                     color: Colors.grey[200],
@@ -78,6 +95,11 @@ class RecipeListItem extends StatelessWidget {
                         color: Colors.grey, size: 40),
                   );
                 },
+              )
+                  : Container(
+                color: Colors.grey[200],
+                child: const Icon(Icons.restaurant,
+                    color: Colors.grey, size: 40),
               ),
             ),
 
