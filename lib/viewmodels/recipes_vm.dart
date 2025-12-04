@@ -28,7 +28,9 @@ class RecipesViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await Future.delayed(const Duration(milliseconds: 1500));
+      await Future.delayed(const Duration(milliseconds: 2000));
+
+      //throw Exception("Failed to load recipes");
 
       _recipes = [
         Recipe(
