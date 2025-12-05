@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '/fb_services/firestore_service.dart';
 import '/views/home_page.dart';
 import '/views/planner/planner_screen.dart';
 import '/views/recipes/recipes_screen.dart';
@@ -6,55 +9,125 @@ import '/views/profile/profile_screen.dart';
 import '/models/grocery_model.dart';
 import '/models/recipe_model.dart';
 
+
 class GroceriesViewModel extends ChangeNotifier {
+  final FirestoreService _firestoreService = FirestoreService();
+
   int selectedIndex = 2;
   bool isEditMode = false;
   bool isShoppingListActive = true;
+  bool _isLoading = false;
 
   bool isAddingNewItem = false;
   NewShoppingItem _newShoppingItem = NewShoppingItem();
+
+  List<ShoppingListItem> _shoppingList = [];
+  List<RecipeGroceryGroup> _groceriesByRecipe = [];
+
+  bool get isLoading => _isLoading;
   NewShoppingItem get newShoppingItem => _newShoppingItem;
-
-  final List<ShoppingListItem> _shoppingList = [
-    ShoppingListItem(id: 's1', name: 'Eggs', amount: '10', isChecked: true),
-    ShoppingListItem(id: 's2', name: 'Cheese', amount: '300 g', isChecked: false),
-    ShoppingListItem(id: 's3', name: 'Tomatoes', amount: '5', isChecked: true),
-    ShoppingListItem(id: 's4', name: 'Bread', amount: '1', isChecked: false),
-  ];
-  List<ShoppingListItem> get shoppingList => _shoppingList;
-
-  final List<RecipeGroceryGroup> _groceriesByRecipe = [
-    RecipeGroceryGroup(
-      recipeTitle: 'Eggs and tomatoes',
-      ingredients: [
-        Ingredient(name: 'Tomatoes', amount: '5'),
-        Ingredient(name: 'Eggs', amount: '2'),
-      ],
-    ),
-    RecipeGroceryGroup(
-      recipeTitle: 'Pizza rolls',
-      ingredients: [
-        Ingredient(name: 'Tomatoes', amount: '5'),
-        Ingredient(name: 'Eggs', amount: '2'),
-        Ingredient(name: 'Cheese', amount: '300 g'),
-      ],
-    ),
-    RecipeGroceryGroup(
-      recipeTitle: 'Cinnamon',
-      ingredients: [
-        Ingredient(name: 'Eggs', amount: '2'),
-        Ingredient(name: 'Cheese', amount: '300 g'),
-      ],
-    ),
-  ];
   List<RecipeGroceryGroup> get groceriesByRecipe => _groceriesByRecipe;
+
+  List<ShoppingListItem> get shoppingList {
+    _shoppingList.sort((a, b) {
+      if (a.isChecked && !b.isChecked) return 1;
+      if (!a.isChecked && b.isChecked) return -1;
+      return a.name.toLowerCase().compareTo(b.name.toLowerCase());
+    });
+    return _shoppingList;
+  }
 
   int get itemsToBuyCount => _shoppingList.where((item) => !item.isChecked).length;
 
-  void toggleCheckedState(String id) {
-    final item = _shoppingList.firstWhere((i) => i.id == id);
-    item.isChecked = !item.isChecked;
+  GroceriesViewModel() {
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    _setLoading(true);
+    try {
+      _shoppingList = await _firestoreService.getShoppingList();
+
+      final recipes = await _firestoreService.getUserRecipes();
+
+      _groceriesByRecipe = recipes.map((recipe) {
+        return RecipeGroceryGroup(
+          recipeTitle: recipe.title,
+          ingredients: recipe.ingredients,
+        );
+      }).toList();
+
+    } catch (e) {
+      print("Error loading groceries: $e");
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<void> toggleCheckedState(String id) async {
+    final index = _shoppingList.indexWhere((i) => i.id == id);
+    if (index != -1) {
+      final item = _shoppingList[index];
+      item.isChecked = !item.isChecked;
+      notifyListeners();
+
+      await _firestoreService.updateShoppingItem(item);
+    }
+  }
+
+  Future<void> saveNewItem() async {
+    if (_newShoppingItem.name.isNotEmpty) {
+      await addShoppingItem(_newShoppingItem.name, _newShoppingItem.amount);
+
+      isAddingNewItem = false;
+      _newShoppingItem = NewShoppingItem();
+      notifyListeners(); // Оновлюємо UI
+    } else {
+      // Якщо пусте ім'я - просто закриваємо
+      isAddingNewItem = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> addShoppingItem(String name, String amount) async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return;
+
+    final cleanName = name.trim();
+    final cleanAmount = amount.trim();
+
+    // Створюємо новий елемент завжди
+    final newItem = ShoppingListItem(
+      id: const Uuid().v4(),
+      userId: userId,
+      name: cleanName,
+      amount: cleanAmount,
+      isChecked: false,
+    );
+
+    _shoppingList.add(newItem);
     notifyListeners();
+    await _firestoreService.addShoppingItem(newItem);
+  }
+
+  Future<void> removeShoppingItem(String id) async {
+    _shoppingList.removeWhere((item) => item.id == id);
+    notifyListeners();
+    await _firestoreService.deleteShoppingItem(id);
+  }
+
+  Future<void> addIngredientToShoppingList(BuildContext context, Ingredient ingredient) async {
+    await addShoppingItem(ingredient.name, ingredient.amount);
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${ingredient.name} added to list!'),
+          duration: const Duration(milliseconds: 700),
+          backgroundColor: const Color(0xFFABBA72),
+        ),
+      );
+    }
   }
 
   void toggleEditMode() {
@@ -82,36 +155,6 @@ class GroceriesViewModel extends ChangeNotifier {
     _newShoppingItem.amount = amount;
   }
 
-  void saveNewItem() {
-    if (_newShoppingItem.name.isNotEmpty && _newShoppingItem.amount.isNotEmpty) {
-
-      addShoppingItem(_newShoppingItem.name, _newShoppingItem.amount);
-      isAddingNewItem = false;
-      _newShoppingItem = NewShoppingItem();
-
-    } else {
-
-      isAddingNewItem = false;
-      notifyListeners();
-    }
-  }
-
-  void addShoppingItem(String name, String amount) {
-
-    final newId = DateTime.now().microsecondsSinceEpoch.toString();
-    _shoppingList.add(ShoppingListItem(id: newId, name: name, amount: amount));
-    notifyListeners();
-  }
-
-  void removeShoppingItem(String id) {
-    _shoppingList.removeWhere((item) => item.id == id);
-    notifyListeners();
-  }
-
-  void addIngredientToShoppingList(Ingredient ingredient) {
-    addShoppingItem(ingredient.name, ingredient.amount);
-  }
-
   void selectShoppingList() {
     if (!isShoppingListActive) {
       isShoppingListActive = true;
@@ -124,6 +167,11 @@ class GroceriesViewModel extends ChangeNotifier {
       isShoppingListActive = false;
       notifyListeners();
     }
+  }
+
+  void _setLoading(bool value) {
+    _isLoading = value;
+    notifyListeners();
   }
 
   void onItemTapped(BuildContext context, int index) {

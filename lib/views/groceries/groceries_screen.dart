@@ -4,10 +4,9 @@ import 'package:provider/provider.dart';
 import '/viewmodels/groceries_vm.dart';
 import '/widgets/bottom_nav_w.dart';
 import '/widgets/common_app_bar_w.dart';
-import '/models/recipe_model.dart';
 import '/models/grocery_model.dart';
 
-
+// --- Елемент групи інгредієнтів (Groceries Tab) ---
 class _GroceriesGroupItem extends StatelessWidget {
   final RecipeGroceryGroup group;
   final GroceriesViewModel vm;
@@ -76,16 +75,24 @@ class _GroceriesGroupItem extends StatelessWidget {
 
                   const SizedBox(width: 16),
 
-                  GestureDetector(
-                    onTap: () => vm.addIngredientToShoppingList(ingredient),
-                    child: Container(
-                      width: 24,
-                      height: 24,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF4B572B),
-                        shape: BoxShape.circle,
+                  // ЗМІНЕНО: Додано InkWell для візуального ефекту натискання
+                  Container(
+                    width: 24,
+                    height: 24,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF4B572B),
+                      shape: BoxShape.circle,
+                    ),
+                    // Material потрібен для InkWell ефекту на кольоровому фоні
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        customBorder: const CircleBorder(), // Кругла форма хвилі
+                        splashColor: Colors.white.withOpacity(0.3), // Колір ефекту
+                        highlightColor: Colors.white.withOpacity(0.1),
+                        onTap: () => vm.addIngredientToShoppingList(context, ingredient),
+                        child: const Icon(Icons.add, color: Colors.white, size: 16),
                       ),
-                      child: const Icon(Icons.add, color: Colors.white, size: 16),
                     ),
                   ),
                 ],
@@ -99,6 +106,7 @@ class _GroceriesGroupItem extends StatelessWidget {
   }
 }
 
+// --- Елемент списку покупок (Shopping List Tab) ---
 class _ShoppingListItemWidget extends StatelessWidget {
   final ShoppingListItem item;
   final GroceriesViewModel vm;
@@ -157,13 +165,15 @@ class _ShoppingListItemWidget extends StatelessWidget {
                     children: [
                       Expanded(
                         flex: 4,
-                        child: Text(item.name, style: style, maxLines: 1, overflow: TextOverflow.ellipsis),
+                        child: Text(item.name, style: style, maxLines: 2, overflow: TextOverflow.ellipsis),
                       ),
-                      Text(' | ', style: style.copyWith(fontWeight: FontWeight.w500)),
-                      Expanded(
-                        flex: 2,
-                        child: Text(item.amount, style: style, textAlign: TextAlign.right, maxLines: 1),
-                      ),
+                      if (item.amount.isNotEmpty) ...[
+                        Text(' | ', style: style.copyWith(fontWeight: FontWeight.w500)),
+                        Expanded(
+                          flex: 2,
+                          child: Text(item.amount, style: style, textAlign: TextAlign.right, maxLines: 1),
+                        ),
+                      ]
                     ],
                   ),
                 ),
@@ -198,6 +208,7 @@ class _ShoppingListItemWidget extends StatelessWidget {
 }
 
 
+// --- Головний екран Groceries ---
 class GroceriesScreen extends StatelessWidget {
   const GroceriesScreen({super.key});
 
@@ -232,7 +243,9 @@ class GroceriesScreen extends StatelessWidget {
             ),
 
             body: SafeArea(
-              child: Align(
+              child: vm.isLoading
+                  ? const Center(child: CircularProgressIndicator(color: Color(0xFFABBA72)))
+                  : Align(
                 alignment: Alignment.topCenter,
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: kMaxContentWidth),
@@ -266,7 +279,6 @@ class GroceriesScreen extends StatelessWidget {
   }
 
   Widget _buildSegmentedControl(BuildContext context, GroceriesViewModel vm, bool isTablet) {
-
     final double buttonHeight = isTablet ? 55 : 45;
     final double fontSize = isTablet ? 18 : 16;
 
@@ -337,7 +349,6 @@ class GroceriesScreen extends StatelessWidget {
   }
 
   Widget _buildShoppingListContent(BuildContext context, GroceriesViewModel vm, bool isTablet) {
-
     final double iconSize = isTablet ? 28 : 22;
     final double titleFontSize = isTablet ? 18 : 16;
     final double buttonIconSize = isTablet ? 32 : 28;
@@ -453,7 +464,6 @@ class GroceriesScreen extends StatelessWidget {
   }
 
   Widget _buildAddIngredientInput(BuildContext context, GroceriesViewModel vm) {
-
     return Padding(
       padding: const EdgeInsets.only(bottom: 24),
       child: Container(
@@ -479,13 +489,9 @@ class GroceriesScreen extends StatelessWidget {
                 ),
               ),
             ),
-
             const SizedBox(width: 8),
-
             const Text('|', style: TextStyle(color: Color(0xFFDF6149))),
-
             const SizedBox(width: 8),
-
             Expanded(
               flex: 2,
               child: SizedBox(
@@ -499,16 +505,12 @@ class GroceriesScreen extends StatelessWidget {
                 ),
               ),
             ),
-
             const SizedBox(width: 8),
-
             InkWell(
               onTap: vm.saveNewItem,
               child: const Icon(Icons.check_circle, color: Color(0xFF4B572B), size: 28),
             ),
-
             const SizedBox(width: 8),
-
             InkWell(
               onTap: vm.cancelAddingNewItem,
               child: const Icon(Icons.cancel, color: Color(0xFF991800), size: 28),
@@ -542,7 +544,6 @@ class GroceriesScreen extends StatelessWidget {
   }
 
   Widget _buildGroceriesContent(BuildContext context, GroceriesViewModel vm, bool isTablet) {
-
     final double emptyTextFontSize = isTablet ? 18 : 16;
     final double hPadding = isTablet ? 24 : 16;
     final double vPadding = isTablet ? 24 : 16;
