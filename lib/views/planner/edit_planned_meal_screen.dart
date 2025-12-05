@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '/models/recipe_model.dart';
 import '/models/planner_model.dart';
 import '/viewmodels/recipes_vm.dart';
+import '/viewmodels/planner_vm.dart';
 import '/views/recipes/recipe_list_item.dart';
 
 class EditPlannedMealScreen extends StatefulWidget {
@@ -22,6 +23,7 @@ class EditPlannedMealScreen extends StatefulWidget {
 class _EditPlannedMealScreenState extends State<EditPlannedMealScreen> {
   late final TextEditingController _hourController;
   late final TextEditingController _minuteController;
+  final TextEditingController _searchController = TextEditingController();
 
   late DateTime _currentDate;
   late DateTime _focusedMonth;
@@ -37,25 +39,90 @@ class _EditPlannedMealScreenState extends State<EditPlannedMealScreen> {
     super.initState();
 
     final dateTime = widget.plannedMeal.dateTime;
-
     _currentDate = dateTime;
     _focusedMonth = DateTime(_currentDate.year, _currentDate.month, 1);
+
+    // ВАЖЛИВО: Ініціалізуємо вибрану страву з тієї, що прийшла в аргументах
     _selectedRecipe = widget.plannedMeal.recipe;
 
     final int hour12 = (dateTime.hour % 12) == 0 ? 12 : (dateTime.hour % 12);
+    _amPm = dateTime.hour >= 12 ? 'PM' : 'AM';
 
     _hourController = TextEditingController(text: hour12.toString().padLeft(2, '0'));
     _minuteController = TextEditingController(text: dateTime.minute.toString().padLeft(2, '0'));
-    _amPm = dateTime.hour >= 12 ? 'PM' : 'AM';
   }
 
   @override
   void dispose() {
     _hourController.dispose();
     _minuteController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
+  Future<void> _saveChanges() async {
+    if (_selectedRecipe == null) return;
+
+    final int? hourInput = int.tryParse(_hourController.text);
+    final int? minuteInput = int.tryParse(_minuteController.text);
+
+    if (hourInput == null || minuteInput == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Invalid time format')),
+      );
+      return;
+    }
+
+    int hour24 = hourInput;
+    if (_amPm == 'PM' && hourInput != 12) hour24 += 12;
+    if (_amPm == 'AM' && hourInput == 12) hour24 = 0;
+
+    final DateTime newDateTime = DateTime(
+      _currentDate.year,
+      _currentDate.month,
+      _currentDate.day,
+      hour24,
+      minuteInput,
+    );
+
+    try {
+      final plannerVM = Provider.of<PlannerViewModel>(context, listen: false);
+
+      final updatedMeal = PlannedMeal(
+        id: widget.plannedMeal.id,
+        userId: widget.plannedMeal.userId,
+        dateTime: newDateTime,
+        recipe: _selectedRecipe!,
+        mealType: _selectedRecipe!.mealType.label,
+      );
+
+      await plannerVM.updatePlannedMeal(updatedMeal);
+
+      if (mounted) Navigator.of(context).pop();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error updating meal: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _deleteMeal() async {
+    try {
+      final plannerVM = Provider.of<PlannerViewModel>(context, listen: false);
+      await plannerVM.deletePlannedMeal(widget.plannedMeal.id);
+      if (mounted) Navigator.of(context).pop();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error deleting meal: $e')),
+        );
+      }
+    }
+  }
+
+  // --- Calendar logic remains the same ---
   bool _isSameDay(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }
@@ -64,15 +131,12 @@ class _EditPlannedMealScreenState extends State<EditPlannedMealScreen> {
     final firstDayOfMonth = DateTime(_focusedMonth.year, _focusedMonth.month, 1);
     final lastDayOfMonth = DateTime(_focusedMonth.year, _focusedMonth.month + 1, 0);
     final days = <DateTime?>[];
-
     for (int i = 0; i < firstDayOfMonth.weekday - 1; i++) {
       days.add(null);
     }
-
     for (int i = 1; i <= lastDayOfMonth.day; i++) {
       days.add(DateTime(_focusedMonth.year, _focusedMonth.month, i));
     }
-
     return days;
   }
 
@@ -90,20 +154,12 @@ class _EditPlannedMealScreenState extends State<EditPlannedMealScreen> {
     });
   }
 
-  void _saveChanges() {
-    Navigator.of(context).pop();
-  }
-
-  void _deleteMeal() {
-    Navigator.of(context).pop();
-  }
-
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final double horizontalPadding = screenWidth > 600 ? 80.0 : 24.0;
+    // Чи планшет?
     final bool isTablet = screenWidth > 600;
-    final double horizontalPadding = isTablet ? 80.0 : 24.0;
-    final recipesVM = Provider.of<RecipesViewModel>(context);
 
     return Scaffold(
       backgroundColor: const Color(0xFFFFFBF0),
@@ -139,66 +195,106 @@ class _EditPlannedMealScreenState extends State<EditPlannedMealScreen> {
           const SizedBox(width: 16),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: Consumer<RecipesViewModel>(
+        builder: (context, recipesVM, child) {
+          return SingleChildScrollView(
+            padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  _formatDate(_currentDate),
-                  style: const TextStyle(
-                    color: Color(0xFF4B572B),
-                    fontSize: 20,
-                    fontFamily: 'Kantumruy Pro',
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _showCalendar = !_showCalendar;
-                    });
-                  },
-                  child: Text(
-                    _showCalendar ? 'CLOSE CALENDAR' : 'VIEW CALENDAR',
-                    style: const TextStyle(
-                      color: Color(0xFFDF6149),
-                      fontSize: 14,
-                      fontFamily: 'Kantumruy Pro',
-                      fontWeight: FontWeight.w500,
-                      decoration: TextDecoration.underline,
-                      decorationColor: Color(0xFFDF6149),
+                // --- DATE SELECTOR ---
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      _formatDate(_currentDate),
+                      style: const TextStyle(
+                        color: Color(0xFF4B572B),
+                        fontSize: 20,
+                        fontFamily: 'Kantumruy Pro',
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _showCalendar = !_showCalendar;
+                        });
+                      },
+                      child: Text(
+                        _showCalendar ? 'CLOSE CALENDAR' : 'VIEW CALENDAR',
+                        style: const TextStyle(
+                          color: Color(0xFFDF6149),
+                          fontSize: 14,
+                          fontFamily: 'Kantumruy Pro',
+                          fontWeight: FontWeight.w500,
+                          decoration: TextDecoration.underline,
+                          decorationColor: Color(0xFFDF6149),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 16),
+
+                if (_showCalendar) _buildCalendarWidget(isTablet),
+
+                const SizedBox(height: 24),
+
+                // --- TIME INPUT ---
+                _buildTimeInput(),
+
+                const SizedBox(height: 24),
+
+                // --- SEARCH ---
+                _buildSearchRow(recipesVM),
+
+                const SizedBox(height: 24),
+
+                // --- RECIPE LIST ---
+                SizedBox(
+                  height: 400,
+                  child: recipesVM.isLoading
+                      ? const Center(child: CircularProgressIndicator(color: Color(0xFFABBA72)))
+                      : ListView.builder(
+                    itemCount: recipesVM.recipes.length,
+                    itemBuilder: (context, index) {
+                      final recipe = recipesVM.recipes[index];
+
+                      // Перевіряємо ID для виділення
+                      final isSelected = _selectedRecipe?.id == recipe.id;
+
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: RecipeListItem(
+                          recipe: recipe,
+                          // Якщо вибрано - передаємо жовтий колір, як на скріншоті
+                          selectedColor: const Color(0xFFFFC107),
+                          isSelected: isSelected,
+                          onTap: () {
+                            setState(() {
+                              // Оновлюємо вибір. Це змусить ListView перебудуватися
+                              // і передати isSelected = true для цього елементу.
+                              _selectedRecipe = recipe;
+                            });
+                          },
+                        ),
+                      );
+                    },
                   ),
                 ),
+
+                const SizedBox(height: 40),
               ],
             ),
-
-            const SizedBox(height: 16),
-
-            if (_showCalendar) _buildCalendarWidget(isTablet),
-
-            const SizedBox(height: 24),
-
-            _buildTimeInput(context),
-
-            const SizedBox(height: 24),
-
-            _buildSearchRow(),
-
-            const SizedBox(height: 24),
-
-            _buildRecipeList(recipesVM),
-
-            const SizedBox(height: 40),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
+
+  // --- UI Components ---
 
   Widget _buildAppBarAction({
     required String iconPath,
@@ -229,7 +325,7 @@ class _EditPlannedMealScreenState extends State<EditPlannedMealScreen> {
     );
   }
 
-  Widget _buildTimeInput(BuildContext context) {
+  Widget _buildTimeInput() {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
@@ -339,7 +435,7 @@ class _EditPlannedMealScreenState extends State<EditPlannedMealScreen> {
     );
   }
 
-  Widget _buildSearchRow() {
+  Widget _buildSearchRow(RecipesViewModel vm) {
     return Row(
       children: [
         Expanded(
@@ -352,8 +448,9 @@ class _EditPlannedMealScreenState extends State<EditPlannedMealScreen> {
                 borderRadius: BorderRadius.circular(28),
               ),
             ),
-            child: const TextField(
-              decoration: InputDecoration(
+            child: TextField(
+              controller: vm.searchController,
+              decoration: const InputDecoration(
                 hintText: 'Search by name, tag ..',
                 hintStyle: TextStyle(
                   color: Color(0xFF4B572B),
@@ -367,61 +464,7 @@ class _EditPlannedMealScreenState extends State<EditPlannedMealScreen> {
             ),
           ),
         ),
-        const SizedBox(width: 12),
-        GestureDetector(
-          onTap: () {
-          },
-          child: Container(
-            width: 50,
-            height: 50,
-            decoration: const ShapeDecoration(
-              color: Color(0x7FFFFBF0),
-              shape: CircleBorder(),
-              shadows: [
-                BoxShadow(
-                  color: Color(0x3F000000),
-                  blurRadius: 7,
-                  offset: Offset(0, 0),
-                )
-              ],
-            ),
-            child: Center(
-              child: SvgPicture.asset(
-                'assets/images/add_circle.svg',
-                width: 48, height: 48,
-              ),
-            ),
-          ),
-        ),
       ],
-    );
-  }
-
-  Widget _buildRecipeList(RecipesViewModel vm) {
-    return SizedBox(
-      height: 400,
-      child: vm.isLoading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFFABBA72)))
-          : ListView.builder(
-        itemCount: vm.recipes.length,
-        itemBuilder: (context, index) {
-          final recipe = vm.recipes[index];
-          final isSelected = _selectedRecipe?.id == recipe.id;
-
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: RecipeListItem(
-              recipe: recipe,
-              onTap: () {
-                setState(() {
-                  _selectedRecipe = recipe;
-                });
-              },
-              isSelected: isSelected,
-            ),
-          );
-        },
-      ),
     );
   }
 
@@ -534,7 +577,6 @@ class _EditPlannedMealScreenState extends State<EditPlannedMealScreen> {
         ),
       );
     }
-
     return calendarContent;
   }
 

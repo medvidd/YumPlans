@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '/fb_services/firestore_service.dart';
 import '/views/home_page.dart';
 import '/views/recipes/recipes_screen.dart';
 import '/views/groceries/groceries_screen.dart';
@@ -8,22 +11,27 @@ import '/models/planner_model.dart';
 import '/models/recipe_model.dart';
 
 class PlannerViewModel extends ChangeNotifier {
-  int selectedIndex = 1;
+  final FirestoreService _firestoreService = FirestoreService();
 
+  int selectedIndex = 1;
   late DateTime _today;
   DateTime get today => _today;
 
   late DateTime currentDate;
   bool showCalendar = false;
   late DateTime focusedMonth;
+  bool _isLoading = false;
+  String? _errorMessage; // Додано поле помилки
 
   final DateFormat monthFormat = DateFormat('MMMM yyyy');
   final DateFormat weekFormat = DateFormat('MMMM d');
   final DateFormat dayFormat = DateFormat('E');
   final DateFormat dateNumberFormat = DateFormat('d');
-  final DateFormat timeFormat = DateFormat('HH:mm');
 
   List<PlannedMeal> _allPlannedMeals = [];
+
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
 
   List<PlannedMeal> get mealsForSelectedDay {
     return _allPlannedMeals.where((meal) {
@@ -35,56 +43,93 @@ class PlannerViewModel extends ChangeNotifier {
   }
 
   PlannerViewModel() {
-    _today = DateTime.now().toUtc().add(const Duration(hours: 3));
+    _today = DateTime.now();
     currentDate = _today;
     focusedMonth = DateTime(_today.year, _today.month, 1);
-    //_loadDummyData();
+    fetchPlannedMeals();
   }
 
-  /*void _loadDummyData() {
-    final dummyRecipe = Recipe(
-      id: '1',
-      title: 'Eggs with tomatoes',
-      imageUrl: 'assets/images/eggs_tomatoes.jpg',
-      calories: 180,
-      mealType: MealType.breakfast,
-      description: 'Test',
-      ingredients: [],
-    );
+  // --- FIRESTORE ---
 
-    final dummyRecipe2 = Recipe(
-      id: '2',
-      title: 'Pizza rolls',
-      imageUrl: 'assets/images/pizza_rolls.jpg',
-      calories: 350,
-      mealType: MealType.snack,
-      description: 'Test',
-      ingredients: [],
-    );
+  Future<void> fetchPlannedMeals() async {
+    _setLoading(true);
+    _errorMessage = null;
+    try {
+      print("Fetching meals..."); // DEBUG LOG
+      _allPlannedMeals = await _firestoreService.getPlannedMeals();
+      print("Fetched ${_allPlannedMeals.length} meals"); // DEBUG LOG
+    } catch (e) {
+      print("ERROR fetching planner: $e"); // DEBUG LOG
+      _errorMessage = "Could not load meals: $e";
+    } finally {
+      _setLoading(false);
+    }
+  }
 
-    _allPlannedMeals = [
-      PlannedMeal(
-        id: '1',
-        dateTime: DateTime(today.year, today.month, today.day, 8, 30),
-        recipe: dummyRecipe,
-        mealType: 'Breakfast',
-      ),
-      PlannedMeal(
-        id: '2',
-        dateTime: DateTime(today.year, today.month, today.day, 12, 0),
-        recipe: dummyRecipe2,
-        mealType: 'Snack',
-      ),
-    ];
-    notifyListeners();
-  }*/
+  Future<void> addPlannedMeal({
+    required DateTime dateTime,
+    required Recipe recipe,
+    String? mealType,
+  }) async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) {
+      _errorMessage = "User not logged in";
+      notifyListeners();
+      return;
+    }
+
+    _setLoading(true);
+    try {
+      final newMeal = PlannedMeal(
+        id: const Uuid().v4(),
+        userId: userId,
+        dateTime: dateTime,
+        recipe: recipe,
+        mealType: mealType ?? recipe.mealType.label,
+      );
+
+      print("Adding meal for: $dateTime"); // DEBUG LOG
+      await _firestoreService.addPlannedMeal(newMeal);
+      await fetchPlannedMeals();
+    } catch (e) {
+      print("ERROR adding meal: $e"); // DEBUG LOG
+      _errorMessage = "Failed to add meal";
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<void> updatePlannedMeal(PlannedMeal meal) async {
+    _setLoading(true);
+    try {
+      await _firestoreService.updatePlannedMeal(meal);
+      await fetchPlannedMeals();
+    } catch (e) {
+      print("ERROR updating meal: $e");
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<void> deletePlannedMeal(String id) async {
+    _setLoading(true);
+    try {
+      await _firestoreService.deletePlannedMeal(id);
+      await fetchPlannedMeals();
+    } catch (e) {
+      print("ERROR deleting meal: $e");
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  // --- CALENDAR LOGIC ---
 
   void updateTodayIfNeeded() {
-    final now = DateTime.now().toUtc().add(const Duration(hours: 3));
+    final now = DateTime.now();
     if (now.year != _today.year || now.month != _today.month || now.day != _today.day) {
       _today = now;
       notifyListeners();
-      print("Date updated to a new day!");
     }
   }
 
@@ -113,6 +158,26 @@ class PlannerViewModel extends ChangeNotifier {
     currentDate = date;
     focusedMonth = DateTime(date.year, date.month, 1);
     showCalendar = false;
+    notifyListeners();
+  }
+
+  List<DateTime?> getDaysInMonth() {
+    final firstDayOfMonth = DateTime(focusedMonth.year, focusedMonth.month, 1);
+    final lastDayOfMonth = DateTime(focusedMonth.year, focusedMonth.month + 1, 0);
+    final days = <DateTime?>[];
+
+    for (int i = 0; i < firstDayOfMonth.weekday % 7; i++) {
+      days.add(null);
+    }
+
+    for (int i = 1; i <= lastDayOfMonth.day; i++) {
+      days.add(DateTime(focusedMonth.year, focusedMonth.month, i));
+    }
+    return days;
+  }
+
+  void _setLoading(bool value) {
+    _isLoading = value;
     notifyListeners();
   }
 
@@ -148,21 +213,5 @@ class PlannerViewModel extends ChangeNotifier {
         );
         break;
     }
-  }
-
-  List<DateTime?> getDaysInMonth() {
-    final firstDayOfMonth = DateTime(focusedMonth.year, focusedMonth.month, 1);
-    final lastDayOfMonth = DateTime(focusedMonth.year, focusedMonth.month + 1, 0);
-    final days = <DateTime?>[];
-
-    for (int i = 0; i < firstDayOfMonth.weekday % 7; i++) {
-      days.add(null);
-    }
-
-    for (int i = 1; i <= lastDayOfMonth.day; i++) {
-      days.add(DateTime(focusedMonth.year, focusedMonth.month, i));
-    }
-
-    return days;
   }
 }

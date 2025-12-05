@@ -83,19 +83,21 @@ class Recipe {
 
   // Створення об'єкта з документу Firestore
   factory Recipe.fromMap(Map<String, dynamic> map, String docId) {
+    final String finalId = docId.isNotEmpty ? docId : (map['id']?.toString() ?? '');
+
     return Recipe(
       id: docId, // ID документа Firestore
       userId: map['userId'] ?? '',
       title: map['title'] ?? '',
       imageUrl: map['imageUrl'] ?? '',
-      calories: map['calories']?.toInt() ?? 0,
+      calories: (map['calories'] is int)
+          ? map['calories']
+          : int.tryParse(map['calories']?.toString() ?? '0') ?? 0,
       mealType: MealType.fromString(map['mealType'] ?? 'breakfast'),
       description: map['description'] ?? '',
-      ingredients: List<Ingredient>.from(
-        (map['ingredients'] as List<dynamic>? ?? []).map<Ingredient>(
-              (x) => Ingredient.fromMap(x as Map<String, dynamic>),
-        ),
-      ),
+      ingredients: (map['ingredients'] as List<dynamic>? ?? [])
+          .map((x) => Ingredient.fromMap(x as Map<String, dynamic>))
+          .toList(),
     );
   }
 }

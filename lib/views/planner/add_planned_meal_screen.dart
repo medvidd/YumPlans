@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '/models/recipe_model.dart';
 import '/viewmodels/recipes_vm.dart';
+import '/viewmodels/planner_vm.dart'; // Додано імпорт PlannerViewModel
 import '/views/recipes/recipe_list_item.dart';
 
 class AddPlannedMealScreen extends StatefulWidget {
@@ -16,9 +17,11 @@ class AddPlannedMealScreen extends StatefulWidget {
 }
 
 class _AddPlannedMealScreenState extends State<AddPlannedMealScreen> {
-  final TextEditingController _hourController = TextEditingController(text: "20");
-  final TextEditingController _minuteController = TextEditingController(text: "00");
-  String _amPm = 'PM';
+  final TextEditingController _hourController = TextEditingController(text: "08");
+  final TextEditingController _minuteController = TextEditingController(text: "30");
+  final TextEditingController _searchController = TextEditingController();
+
+  String _amPm = 'AM';
   Recipe? _selectedRecipe;
 
   late DateTime _currentDate;
@@ -38,9 +41,72 @@ class _AddPlannedMealScreenState extends State<AddPlannedMealScreen> {
   void dispose() {
     _hourController.dispose();
     _minuteController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
+  // --- ЛОГІКА ЗБЕРЕЖЕННЯ ---
+  Future<void> _savePlannedMeal() async {
+    // 1. Валідація: чи обрано рецепт?
+    if (_selectedRecipe == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select a recipe first'),
+          backgroundColor: Color(0xFFDF6149),
+        ),
+      );
+      return;
+    }
+
+    // 2. Зчитування та парсинг часу
+    final int? hourInput = int.tryParse(_hourController.text);
+    final int? minuteInput = int.tryParse(_minuteController.text);
+
+    if (hourInput == null || minuteInput == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Invalid time format')),
+      );
+      return;
+    }
+
+    // 3. Конвертація 12h -> 24h
+    int hour24 = hourInput;
+    if (_amPm == 'PM' && hourInput != 12) hour24 += 12;
+    if (_amPm == 'AM' && hourInput == 12) hour24 = 0;
+
+    // 4. Створення фінальної дати
+    final DateTime mealDateTime = DateTime(
+      _currentDate.year,
+      _currentDate.month,
+      _currentDate.day,
+      hour24,
+      minuteInput,
+    );
+
+    // 5. Виклик ViewModel для збереження в базу
+    // Ми отримуємо PlannerViewModel з контексту (він був переданий через Provider.value)
+    try {
+      final plannerVM = Provider.of<PlannerViewModel>(context, listen: false);
+
+      await plannerVM.addPlannedMeal(
+        dateTime: mealDateTime,
+        recipe: _selectedRecipe!,
+      );
+
+      // 6. Закриття екрану після успішного збереження
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error saving meal: $e')),
+        );
+      }
+    }
+  }
+
+  // --- ЛОГІКА КАЛЕНДАРЯ ---
   bool _isSameDay(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }
@@ -50,6 +116,7 @@ class _AddPlannedMealScreenState extends State<AddPlannedMealScreen> {
     final lastDayOfMonth = DateTime(_focusedMonth.year, _focusedMonth.month + 1, 0);
     final days = <DateTime?>[];
 
+    // Зсув для початку місяця (понеділок = 1)
     for (int i = 0; i < firstDayOfMonth.weekday - 1; i++) {
       days.add(null);
     }
@@ -111,23 +178,22 @@ class _AddPlannedMealScreenState extends State<AddPlannedMealScreen> {
                 height: 28,
                 colorFilter: const ColorFilter.mode(Color(0xFF4B572B), BlendMode.srcIn),
               ),
-              onPressed: () {
-                Navigator.pop(context);
-              },
+              onPressed: _savePlannedMeal, // ПІДКЛЮЧЕНО МЕТОД ЗБЕРЕЖЕННЯ
             ),
           ),
-
         ],
       ),
+      // Створюємо RecipesViewModel локально, щоб завантажити список для вибору
       body: ChangeNotifierProvider(
-        create: (_) => RecipesViewModel(),
+        create: (_) => RecipesViewModel(), // Ініціалізація викличе fetchRecipes()
         child: Consumer<RecipesViewModel>(
-          builder: (context, vm, child) {
+          builder: (context, recipesVM, child) {
             return SingleChildScrollView(
               padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // --- Вибір дати ---
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -167,6 +233,7 @@ class _AddPlannedMealScreenState extends State<AddPlannedMealScreen> {
 
                   const SizedBox(height: 24),
 
+                  // --- Введення часу ---
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
@@ -193,6 +260,7 @@ class _AddPlannedMealScreenState extends State<AddPlannedMealScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
+                            // Години
                             Container(
                               width: 100,
                               height: 80,
@@ -223,6 +291,7 @@ class _AddPlannedMealScreenState extends State<AddPlannedMealScreen> {
                               child: Text(':', style: TextStyle(fontSize: 45, color: Color(0xFF1D1B20))),
                             ),
 
+                            // Хвилини
                             Container(
                               width: 100,
                               height: 80,
@@ -250,6 +319,7 @@ class _AddPlannedMealScreenState extends State<AddPlannedMealScreen> {
 
                             const SizedBox(width: 16),
 
+                            // AM/PM
                             Column(
                               children: [
                                 _buildAmPmItem("AM", _amPm == "AM"),
@@ -264,6 +334,7 @@ class _AddPlannedMealScreenState extends State<AddPlannedMealScreen> {
 
                   const SizedBox(height: 24),
 
+                  // --- Пошук рецепту ---
                   Row(
                     children: [
                       Expanded(
@@ -276,8 +347,9 @@ class _AddPlannedMealScreenState extends State<AddPlannedMealScreen> {
                               borderRadius: BorderRadius.circular(28),
                             ),
                           ),
-                          child: const TextField(
-                            decoration: InputDecoration(
+                          child: TextField(
+                            controller: recipesVM.searchController, // Підключаємо контролер пошуку
+                            decoration: const InputDecoration(
                               hintText: 'Search by name, tag ..',
                               hintStyle: TextStyle(
                                 color: Color(0xFF4B572B),
@@ -291,45 +363,22 @@ class _AddPlannedMealScreenState extends State<AddPlannedMealScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      GestureDetector(
-                        onTap: () {
-                        },
-                        child: Container(
-                          width: 50,
-                          height: 50,
-                          decoration: const ShapeDecoration(
-                            color: Color(0x7FFFFBF0),
-                            shape: CircleBorder(),
-                            shadows: [
-                              BoxShadow(
-                                color: Color(0x3F000000),
-                                blurRadius: 7,
-                                offset: Offset(0, 0),
-                              )
-                            ],
-                          ),
-                          child: Center(
-                            child: SvgPicture.asset(
-                              'assets/images/add_circle.svg',
-                              width: 48, height: 48,
-                            ),
-                          ),
-                        ),
-                      ),
                     ],
                   ),
 
                   const SizedBox(height: 24),
 
+                  // --- Список рецептів ---
                   SizedBox(
                     height: 400,
-                    child: vm.isLoading
+                    child: recipesVM.isLoading
                         ? const Center(child: CircularProgressIndicator(color: Color(0xFFABBA72)))
+                        : recipesVM.recipes.isEmpty
+                        ? const Center(child: Text("No recipes found", style: TextStyle(color: Colors.grey)))
                         : ListView.builder(
-                      itemCount: vm.recipes.length,
+                      itemCount: recipesVM.recipes.length,
                       itemBuilder: (context, index) {
-                        final recipe = vm.recipes[index];
+                        final recipe = recipesVM.recipes[index];
                         final isSelected = _selectedRecipe?.id == recipe.id;
 
                         return Padding(
@@ -355,6 +404,8 @@ class _AddPlannedMealScreenState extends State<AddPlannedMealScreen> {
       ),
     );
   }
+
+  // --- ВІДЖЕТИ UI (залишилися без змін) ---
 
   Widget _buildCalendarWidget(bool isTablet) {
     final double arrowSize = isTablet ? 50 : 40;

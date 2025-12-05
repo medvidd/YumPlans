@@ -96,7 +96,21 @@ class RecipesViewModel extends ChangeNotifier {
   Future<void> deleteRecipe(String recipeId) async {
     _setLoading(true);
     try {
+      // 1. Знаходимо рецепт, щоб отримати посилання на фото
+      final recipeToDelete = _recipes.firstWhere(
+              (r) => r.id == recipeId,
+          orElse: () => _recipes[0] // Заглушка, якщо раптом не знайдено (малоймовірно)
+      );
+
+      // 2. Якщо у рецепта є фото (і це не заглушка), видаляємо його з хмари
+      if (recipeToDelete.imageUrl.isNotEmpty) {
+        await _uploadService.deleteFile(recipeToDelete.imageUrl);
+      }
+
+      // 3. Видаляємо запис з Firestore
       await _firestoreService.deleteRecipe(recipeId);
+
+      // 4. Оновлюємо список
       await fetchRecipes();
     } catch (e) {
       _errorMessage = e.toString();

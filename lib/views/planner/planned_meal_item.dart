@@ -52,6 +52,7 @@ class PlannedMealItem extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
+                    // Зображення страви
                     Container(
                       width: 58,
                       height: 58,
@@ -60,12 +61,15 @@ class PlannedMealItem extends StatelessWidget {
                         color: Colors.grey[300],
                       ),
                       clipBehavior: Clip.antiAlias,
-                      child: Image.asset(
+                      // ВИПРАВЛЕНО: Image.network замість Image.asset
+                      child: meal.recipe.imageUrl.isNotEmpty
+                          ? Image.network(
                         meal.recipe.imageUrl,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) =>
                         const Icon(Icons.restaurant, color: Colors.grey),
-                      ),
+                      )
+                          : const Icon(Icons.restaurant, color: Colors.grey),
                     ),
                     const SizedBox(width: 12),
 

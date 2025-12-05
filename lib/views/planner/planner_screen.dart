@@ -2,22 +2,36 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import '/viewmodels/planner_vm.dart';
+import '/viewmodels/recipes_vm.dart';
 import '/widgets/bottom_nav_w.dart';
 import '/widgets/common_app_bar_w.dart';
 import 'planned_meal_item.dart';
-import '/viewmodels/recipes_vm.dart';
 import 'add_planned_meal_screen.dart';
-import '/views/planner/edit_planned_meal_screen.dart';
+import 'edit_planned_meal_screen.dart';
 
-class PlannerScreen extends StatefulWidget {
+// 1. Цей віджет тепер ТІЛЬКИ ініціалізує Provider
+class PlannerScreen extends StatelessWidget {
   const PlannerScreen({super.key});
 
   @override
-  State<PlannerScreen> createState() => _PlannerScreenState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider<PlannerViewModel>(
+      create: (_) => PlannerViewModel(),
+      // 2. Передаємо управління дочірньому віджету, який матиме доступ до VM
+      child: const PlannerView(),
+    );
+  }
 }
 
-class _PlannerScreenState extends State<PlannerScreen> with WidgetsBindingObserver {
+// 3. Основна логіка перенесена сюди
+class PlannerView extends StatefulWidget {
+  const PlannerView({super.key});
 
+  @override
+  State<PlannerView> createState() => _PlannerViewState();
+}
+
+class _PlannerViewState extends State<PlannerView> with WidgetsBindingObserver {
   static const double kTabletBreakpoint = 600.0;
   static const double kMaxContentWidth = 800.0;
   static const double kHorizontalPadding = 24.0;
@@ -37,6 +51,7 @@ class _PlannerScreenState extends State<PlannerScreen> with WidgetsBindingObserv
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
+      // ТЕПЕР ЦЕ ПРАЦЮВАТИМЕ, бо PlannerView знаходиться ПІД Provider'ом
       Provider.of<PlannerViewModel>(context, listen: false).updateTodayIfNeeded();
     }
   }
@@ -51,79 +66,85 @@ class _PlannerScreenState extends State<PlannerScreen> with WidgetsBindingObserv
     final screenHeight = MediaQuery.of(context).size.height;
     final bool isTablet = screenWidth > kTabletBreakpoint;
 
-    return ChangeNotifierProvider<PlannerViewModel>(
-      create: (_) => PlannerViewModel(),
-      child: Consumer<PlannerViewModel>(
-        builder: (context, vm, child) {
-          return Scaffold(
-            backgroundColor: const Color(0xFFFFFBF0),
-            appBar: CommonAppBar(
-              title: 'PLANNER',
-              screenHeight: screenHeight,
-              isTablet: isTablet,
-            ),
-            bottomNavigationBar: BottomNavWidget(
-              selectedIndex: vm.selectedIndex,
-              onItemSelected: (index) {
-                vm.onItemTapped(context, index);
-              },
-            ),
-            body: SafeArea(
-              child: Stack(
-                children: [
-                  Align(
-                    alignment: Alignment.topCenter,
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: kMaxContentWidth),
-                      child: SingleChildScrollView(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: kHorizontalPadding,
-                            vertical: 20.0,
-                          ).add(const EdgeInsets.only(bottom: 80.0)),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              _buildCalendarToggle(context, vm, isTablet),
-                              const SizedBox(height: 16),
-                              if (vm.showCalendar)
-                                _buildCalendarView(context, vm, isTablet),
-                              const SizedBox(height: 16),
-                              _buildWeekNavigator(context, vm, isTablet),
-                              const SizedBox(height: 16),
-                              _buildWeekView(context, vm, isTablet),
-                              IgnorePointer(
-                                ignoring: vm.showCalendar,
-                                child: AnimatedOpacity(
-                                  duration: const Duration(milliseconds: 300),
-                                  opacity: vm.showCalendar ? 0.3 : 1.0,
-                                  child: Column(
-                                    children: [
-                                      const SizedBox(height: 30),
-                                      _buildMealsCard(context, vm, isTablet),
-                                    ],
-                                  ),
+    // Використовуємо Consumer, щоб слухати зміни
+    return Consumer<PlannerViewModel>(
+      builder: (context, vm, child) {
+        return Scaffold(
+          backgroundColor: const Color(0xFFFFFBF0),
+          appBar: CommonAppBar(
+            title: 'PLANNER',
+            screenHeight: screenHeight,
+            isTablet: isTablet,
+          ),
+          bottomNavigationBar: BottomNavWidget(
+            selectedIndex: vm.selectedIndex,
+            onItemSelected: (index) {
+              vm.onItemTapped(context, index);
+            },
+          ),
+          body: SafeArea(
+            child: vm.isLoading
+                ? const Center(child: CircularProgressIndicator(color: Color(0xFFABBA72)))
+                : vm.errorMessage != null
+                ? Center(
+              child: Text(
+                vm.errorMessage!,
+                style: const TextStyle(color: Colors.red),
+              ),
+            )
+                : Stack(
+              children: [
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: kMaxContentWidth),
+                    child: SingleChildScrollView(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: kHorizontalPadding,
+                          vertical: 20.0,
+                        ).add(const EdgeInsets.only(bottom: 80.0)),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _buildCalendarToggle(context, vm, isTablet),
+                            const SizedBox(height: 16),
+                            if (vm.showCalendar)
+                              _buildCalendarView(context, vm, isTablet),
+                            const SizedBox(height: 16),
+                            _buildWeekNavigator(context, vm, isTablet),
+                            const SizedBox(height: 16),
+                            _buildWeekView(context, vm, isTablet),
+                            IgnorePointer(
+                              ignoring: vm.showCalendar,
+                              child: AnimatedOpacity(
+                                duration: const Duration(milliseconds: 300),
+                                opacity: vm.showCalendar ? 0.3 : 1.0,
+                                child: Column(
+                                  children: [
+                                    const SizedBox(height: 30),
+                                    _buildMealsCard(context, vm, isTablet),
+                                  ],
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
                   ),
-                  _buildAddButton(context, vm, isTablet),
-                ],
-              ),
+                ),
+                _buildAddButton(context, vm, isTablet),
+              ],
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 
   Widget _buildCalendarToggle(BuildContext context, PlannerViewModel vm, bool isTablet) {
     final double fontSize = isTablet ? 18 : 16;
-
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -376,12 +397,11 @@ class _PlannerScreenState extends State<PlannerScreen> with WidgetsBindingObserv
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ChangeNotifierProvider(
-                  create: (_) {
-                    final recipesVM = RecipesViewModel();
-                    recipesVM.fetchRecipes();
-                    return recipesVM;
-                  },
+                builder: (context) => MultiProvider(
+                  providers: [
+                    ChangeNotifierProvider.value(value: vm),
+                    ChangeNotifierProvider(create: (_) => RecipesViewModel()),
+                  ],
                   child: EditPlannedMealScreen(
                     plannedMeal: meals[index],
                   ),
@@ -407,7 +427,7 @@ class _PlannerScreenState extends State<PlannerScreen> with WidgetsBindingObserv
       ),
       child: const Center(
         child: Text(
-          'No meals planned',
+          'No meals planned for this day',
           style: TextStyle(
             color: Color(0xFF981800),
             fontSize: 16,
@@ -432,8 +452,11 @@ class _PlannerScreenState extends State<PlannerScreen> with WidgetsBindingObserv
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => AddPlannedMealScreen(
-                selectedDate: vm.currentDate,
+              builder: (context) => ChangeNotifierProvider.value(
+                value: vm,
+                child: AddPlannedMealScreen(
+                  selectedDate: vm.currentDate,
+                ),
               ),
             ),
           );
