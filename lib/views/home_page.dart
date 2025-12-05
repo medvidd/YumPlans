@@ -3,18 +3,46 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '/viewmodels/home_page_vm.dart';
+import '/viewmodels/recipes_vm.dart'; // Потрібен для EditScreen
+import '/viewmodels/planner_vm.dart'; // Потрібен для EditScreen (видалення/оновлення)
 import '/widgets/bottom_nav_w.dart';
 import '/models/planner_model.dart';
 import '/views/planner/planned_meal_item.dart';
 import '/views/planner/edit_planned_meal_screen.dart';
-import '/viewmodels/recipes_vm.dart';
 
-class HomePageScreen extends StatelessWidget {
+class HomePageScreen extends StatefulWidget {
   const HomePageScreen({super.key});
 
+  @override
+  State<HomePageScreen> createState() => _HomePageScreenState();
+}
+
+class _HomePageScreenState extends State<HomePageScreen> with WidgetsBindingObserver {
   static const double kTabletBreakpoint = 600.0;
   static const double kMaxContentWidth = 700.0;
   static const double kHorizontalPadding = 24.0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Оновлюємо дані при поверненні з background
+    if (state == AppLifecycleState.resumed) {
+      // Тут можна викликати оновлення, якщо у вас є доступ до провайдера
+      // Але оскільки Provider створюється нижче, це трохи складніше.
+      // Для Home Page це не критично.
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +63,9 @@ class HomePageScreen extends StatelessWidget {
               },
             ),
             body: SafeArea(
-              child: Column(
+              child: vm.isLoading
+                  ? const Center(child: CircularProgressIndicator(color: Color(0xFFABBA72)))
+                  : Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   _buildHeader(context, vm, isTablet, screenWidth, screenHeight),
@@ -50,6 +80,7 @@ class HomePageScreen extends StatelessWidget {
   }
 
   Widget _buildHeader(BuildContext context, HomePageViewModel vm, bool isTablet, double screenWidth, double screenHeight) {
+    // ... (Ваш код хедера без змін) ...
     final double headerHeight = isTablet ? 300 : 200;
     final double welcomeFontSize = isTablet ? 28 : 20;
     final double logoSize = isTablet ? 125 : 95;
@@ -307,21 +338,26 @@ class HomePageScreen extends StatelessWidget {
                               return PlannedMealItem(
                                 meal: vm.todayMeals[index],
                                 onTap: () {
+                                  // Навігація на редагування
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => ChangeNotifierProvider(
-                                        create: (_) {
-                                          final recipesVM = RecipesViewModel();
-                                          recipesVM.fetchRecipes();
-                                          return recipesVM;
-                                        },
+                                      builder: (context) => MultiProvider(
+                                        providers: [
+                                          // Нам потрібен PlannerViewModel для методів видалення/оновлення
+                                          ChangeNotifierProvider(create: (_) => PlannerViewModel()),
+                                          // Нам потрібен RecipesViewModel для списку страв
+                                          ChangeNotifierProvider(create: (_) => RecipesViewModel()),
+                                        ],
                                         child: EditPlannedMealScreen(
                                           plannedMeal: vm.todayMeals[index],
                                         ),
                                       ),
                                     ),
-                                  );
+                                  ).then((_) {
+                                    // Оновлюємо дані при поверненні (якщо страву змінили/видалили)
+                                    vm.refreshData();
+                                  });
                                 },
                               );
                             },
