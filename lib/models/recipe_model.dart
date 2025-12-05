@@ -74,19 +74,18 @@ class Recipe {
       'title': title,
       'imageUrl': imageUrl,
       'calories': calories,
-      'mealType': mealType.name, // Зберігаємо як рядок ("breakfast")
+      'mealType': mealType.name,
       'description': description,
       'ingredients': ingredients.map((x) => x.toMap()).toList(),
-      'createdAt': FieldValue.serverTimestamp(), // Час створення
+      'createdAt': FieldValue.serverTimestamp(),
     };
   }
 
-  // Створення об'єкта з документу Firestore
   factory Recipe.fromMap(Map<String, dynamic> map, String docId) {
     final String finalId = docId.isNotEmpty ? docId : (map['id']?.toString() ?? '');
 
     return Recipe(
-      id: docId, // ID документа Firestore
+      id: docId,
       userId: map['userId'] ?? '',
       title: map['title'] ?? '',
       imageUrl: map['imageUrl'] ?? '',

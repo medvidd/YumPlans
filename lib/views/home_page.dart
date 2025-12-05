@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '/viewmodels/home_page_vm.dart';
-import '/viewmodels/recipes_vm.dart'; // Потрібен для EditScreen
-import '/viewmodels/planner_vm.dart'; // Потрібен для EditScreen (видалення/оновлення)
+import '/viewmodels/recipes_vm.dart';
+import '/viewmodels/planner_vm.dart';
 import '/widgets/bottom_nav_w.dart';
-import '/models/planner_model.dart';
 import '/views/planner/planned_meal_item.dart';
 import '/views/planner/edit_planned_meal_screen.dart';
 
@@ -36,11 +34,7 @@ class _HomePageScreenState extends State<HomePageScreen> with WidgetsBindingObse
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // Оновлюємо дані при поверненні з background
     if (state == AppLifecycleState.resumed) {
-      // Тут можна викликати оновлення, якщо у вас є доступ до провайдера
-      // Але оскільки Provider створюється нижче, це трохи складніше.
-      // Для Home Page це не критично.
     }
   }
 
@@ -80,7 +74,6 @@ class _HomePageScreenState extends State<HomePageScreen> with WidgetsBindingObse
   }
 
   Widget _buildHeader(BuildContext context, HomePageViewModel vm, bool isTablet, double screenWidth, double screenHeight) {
-    // ... (Ваш код хедера без змін) ...
     final double headerHeight = isTablet ? 300 : 200;
     final double welcomeFontSize = isTablet ? 28 : 20;
     final double logoSize = isTablet ? 125 : 95;
@@ -338,15 +331,12 @@ class _HomePageScreenState extends State<HomePageScreen> with WidgetsBindingObse
                               return PlannedMealItem(
                                 meal: vm.todayMeals[index],
                                 onTap: () {
-                                  // Навігація на редагування
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => MultiProvider(
                                         providers: [
-                                          // Нам потрібен PlannerViewModel для методів видалення/оновлення
                                           ChangeNotifierProvider(create: (_) => PlannerViewModel()),
-                                          // Нам потрібен RecipesViewModel для списку страв
                                           ChangeNotifierProvider(create: (_) => RecipesViewModel()),
                                         ],
                                         child: EditPlannedMealScreen(
@@ -355,7 +345,6 @@ class _HomePageScreenState extends State<HomePageScreen> with WidgetsBindingObse
                                       ),
                                     ),
                                   ).then((_) {
-                                    // Оновлюємо дані при поверненні (якщо страву змінили/видалили)
                                     vm.refreshData();
                                   });
                                 },

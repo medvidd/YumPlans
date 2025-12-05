@@ -27,22 +27,19 @@ class PlannedMeal {
   }
 
   factory PlannedMeal.fromMap(Map<String, dynamic> map) {
-    // Безпечне отримання дати
     DateTime date;
     try {
       date = (map['dateTime'] as Timestamp).toDate();
     } catch (e) {
-      date = DateTime.now(); // Fallback, щоб не крашити додаток
+      date = DateTime.now();
     }
 
-    // Безпечне отримання рецепту
     final recipeMap = map['recipe'] as Map<String, dynamic>? ?? {};
 
     return PlannedMeal(
       id: map['id']?.toString() ?? '',
       userId: map['userId']?.toString() ?? '',
       dateTime: date,
-      // Передаємо пустий рядок як docId, бо ID вже є всередині recipeMap['id']
       recipe: Recipe.fromMap(recipeMap, ''),
       mealType: map['mealType']?.toString() ?? '',
     );

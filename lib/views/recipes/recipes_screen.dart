@@ -78,14 +78,12 @@ class _RecipesScreenState extends State<RecipesScreen> {
   }
 
   Widget _buildRecipeList(BuildContext context, RecipesViewModel vm, bool isTablet) {
-    // 1. Стан завантаження
     if (vm.isLoading) {
       return const Center(
         child: CircularProgressIndicator(color: Color(0xFFABBA72)),
       );
     }
 
-    // 2. Стан помилки
     if (vm.errorMessage != null) {
       return Center(
         child: Column(
@@ -116,12 +114,10 @@ class _RecipesScreenState extends State<RecipesScreen> {
       );
     }
 
-    // 3. Стан, коли список порожній
     if (vm.recipes.isEmpty) {
       return _buildNoRecipesCard(context, vm, isTablet);
     }
 
-    // 4. Відображення списку
     return ListView.builder(
       padding: const EdgeInsets.only(bottom: 80.0),
       itemCount: vm.recipes.length,
@@ -130,13 +126,11 @@ class _RecipesScreenState extends State<RecipesScreen> {
         return RecipeListItem(
           recipe: recipe,
           onTap: () {
-            // ВИПРАВЛЕННЯ ТУТ:
-            // Передаємо існуючий 'vm' на екран деталей
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => ChangeNotifierProvider.value(
-                  value: vm, // <-- Передаємо поточний ViewModel
+                  value: vm,
                   child: RecipeDetailsScreen(recipe: recipe),
                 ),
               ),
@@ -253,15 +247,13 @@ class _RecipesScreenState extends State<RecipesScreen> {
       bottom: bottomPadding,
       child: GestureDetector(
         onTap: () {
-          // ВИПРАВЛЕННЯ ТУТ:
-          // Отримуємо поточний VM з контексту (бо ми всередині Consumer/Provider)
           final vm = Provider.of<RecipesViewModel>(context, listen: false);
 
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => ChangeNotifierProvider.value(
-                value: vm, // <-- Передаємо його далі
+                value: vm,
                 child: const CreateRecipeScreen(),
               ),
             ),

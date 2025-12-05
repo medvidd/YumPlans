@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '/viewmodels/profile_vm.dart';
 import '/widgets/bottom_nav_w.dart';
 import '/widgets/common_app_bar_w.dart';
-import '../../fb_services/upload_service.dart';
+import '/fb_services/upload_service.dart';
 
 
 class ProfileScreen extends StatefulWidget {
@@ -15,12 +15,10 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  // Константи стилю
   static const double kTabletBreakpoint = 600.0;
   static const double kMaxContentWidth = 800.0;
   static const double kHorizontalPadding = 24.0;
 
-  // Кольори проекту
   final Color primaryGreen = const Color(0xFF4B572B);
   final Color lightGreen = const Color(0xFFABBA72);
   final Color bgCream = const Color(0xFFFFFBF0);
@@ -81,11 +79,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // --- КАРТКА ПРОФІЛЮ ---
   Widget _buildProfileCard(BuildContext context, ProfileViewModel vm, bool isTablet) {
     final double avatarSize = isTablet ? 100 : 70;
 
-    // Відображення аватара: якщо є URL, показуємо картинку, інакше SVG
     Widget avatarWidget;
     if (vm.photoUrl != null && vm.photoUrl!.isNotEmpty) {
       avatarWidget = ClipRRect(
@@ -252,18 +248,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // --- ДІАЛОГ РЕДАГУВАННЯ ПРОФІЛЮ ---
-  // ... всередині класу _ProfileScreenState
-
-  // --- ДІАЛОГ РЕДАГУВАННЯ ПРОФІЛЮ ---
   void _showEditProfileDialog(BuildContext context, ProfileViewModel vm) {
     final nameController = TextEditingController(text: vm.userName);
-    // Контролер для фото, початкове значення - поточний URL
     final photoController = TextEditingController(text: vm.photoUrl ?? '');
 
     showDialog(
       context: context,
-      barrierDismissible: false, // Забороняємо закривати кліком повз вікно, поки йде завантаження
+      barrierDismissible: false,
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setStateDialog) {
@@ -276,13 +267,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // --- БЛОК ВИБОРУ ФОТО ---
                     GestureDetector(
                       onTap: () async {
-                        // 1. Викликаємо метод ViewModel для завантаження в Supabase
                         String? newUrl = await vm.pickImage(context);
 
-                        // 2. Якщо отримали URL, оновлюємо контролер і прев'ю
                         if (newUrl != null) {
                           setStateDialog(() {
                             photoController.text = newUrl;
@@ -306,7 +294,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ? Image.network(
                                 photoController.text,
                                 fit: BoxFit.cover,
-                                // Додаємо лоадер для самої картинки
                                 loadingBuilder: (ctx, child, progress) {
                                   if (progress == null) return child;
                                   return const Center(child: CircularProgressIndicator(strokeWidth: 2));
@@ -316,7 +303,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   : const Icon(Icons.person, size: 50, color: Colors.grey),
                             ),
                           ),
-                          // Іконка камери
                           Container(
                             padding: const EdgeInsets.all(6),
                             decoration: const BoxDecoration(
@@ -335,7 +321,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     const SizedBox(height: 20),
 
-                    // --- ПОЛЯ ВВОДУ ---
                     TextField(
                       controller: nameController,
                       decoration: const InputDecoration(
@@ -349,20 +334,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
               actions: [
-                // --- КНОПКА CANCEL (З ЕФЕКТОМ) ---
                 TextButton(
-                  // foregroundColor робить текст І ефект натискання помаранчевим
                   style: TextButton.styleFrom(
                     foregroundColor: const Color(0xFFDF6149),
                   ),
                   onPressed: vm.isLoading ? null : () => Navigator.pop(context),
                   child: const Text('Cancel'),
                 ),
-                // --- КНОПКА SAVE (З ЕФЕКТОМ) ---
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFABBA72),
-                    foregroundColor: Colors.white, // Білий текст і біла хвиля при натисканні
+                    foregroundColor: Colors.white,
                     disabledBackgroundColor: const Color(0xFFABBA72).withOpacity(0.6),
                   ),
                   onPressed: vm.isLoading
@@ -390,7 +372,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // --- КАРТКА СТАТИСТИКИ (без змін) ---
   Widget _buildStatisticsCard(BuildContext context, ProfileViewModel vm, bool isTablet) {
     return Container(
       width: double.infinity,
@@ -500,14 +481,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           actions: [
             TextButton(
-              style: TextButton.styleFrom(foregroundColor: accentOrange), // Помаранчевий ефект
+              style: TextButton.styleFrom(foregroundColor: accentOrange),
               onPressed: () => Navigator.pop(context),
               child: const Text('Cancel'),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: lightGreen,
-                foregroundColor: Colors.white, // Білий ефект
+                foregroundColor: Colors.white,
               ),
               onPressed: () {
                 vm.updateCalorieGoal(controller.text);
@@ -521,7 +502,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // --- КАРТКА НАЛАШТУВАНЬ (з навігацією) ---
   Widget _buildSettingsCard(BuildContext context, ProfileViewModel vm, bool isTablet) {
     return Container(
       width: double.infinity,
@@ -651,7 +631,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 }
 
-// --- PRIVACY SCREEN ---
 class PrivacyScreen extends StatelessWidget {
   final ProfileViewModel viewModel;
   const PrivacyScreen({super.key, required this.viewModel});
@@ -774,7 +753,6 @@ class PrivacyScreen extends StatelessWidget {
   }
 }
 
-// --- HELP & SUPPORT SCREEN ---
 class HelpSupportScreen extends StatelessWidget {
   const HelpSupportScreen({super.key});
 

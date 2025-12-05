@@ -52,11 +52,9 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
 
     final int calories = int.tryParse(_caloriesController.text) ?? 0;
 
-    // Фільтруємо пусті інгредієнти
     final validIngredients = _ingredients.where((i) => i.name.isNotEmpty).toList();
 
     if (widget.recipe == null) {
-      // Створення нового
       await vm.addRecipe(
         title: _titleController.text,
         imageUrl: _imageUrl,
@@ -66,7 +64,6 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
         ingredients: validIngredients,
       );
     } else {
-      // Оновлення існуючого
       final updatedRecipe = Recipe(
         id: widget.recipe!.id,
         userId: widget.recipe!.userId,
@@ -83,7 +80,6 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
     if (mounted) Navigator.pop(context);
   }
 
-  // Метод завантаження фото
   Future<void> _pickImage(RecipesViewModel vm) async {
     final url = await vm.uploadImage();
     if (url != null) {
@@ -207,7 +203,7 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
                       const SizedBox(height: 20),
 
                       GestureDetector(
-                        onTap: () => _pickImage(vm), // Натискання для вибору фото
+                        onTap: () => _pickImage(vm),
                         child: Center(
                           child: Container(
                             width: imageSize,
@@ -219,7 +215,7 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
                             child: _imageUrl.isNotEmpty
                                 ? ClipRRect(
                               borderRadius: BorderRadius.circular(30),
-                              child: Image.network( // Змінили на Network Image
+                              child: Image.network(
                                 _imageUrl,
                                 fit: BoxFit.cover,
                                 errorBuilder: (ctx, err, stack) => _buildUploadPlaceholder(),

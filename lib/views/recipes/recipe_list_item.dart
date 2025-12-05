@@ -68,12 +68,10 @@ class RecipeListItem extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8)),
               ),
               clipBehavior: Clip.antiAlias,
-              // ЗМІНА ТУТ: Використовуємо Image.network замість Asset
               child: recipe.imageUrl.isNotEmpty
                   ? Image.network(
                 recipe.imageUrl,
                 fit: BoxFit.cover,
-                // Показуємо спіннер, поки вантажиться
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) return child;
                   return Center(
@@ -87,7 +85,6 @@ class RecipeListItem extends StatelessWidget {
                     ),
                   );
                 },
-                // Показуємо заглушку, якщо помилка завантаження
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
                     color: Colors.grey[200],

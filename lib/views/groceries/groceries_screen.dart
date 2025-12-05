@@ -6,7 +6,6 @@ import '/widgets/bottom_nav_w.dart';
 import '/widgets/common_app_bar_w.dart';
 import '/models/grocery_model.dart';
 
-// --- Елемент групи інгредієнтів (Groceries Tab) ---
 class _GroceriesGroupItem extends StatelessWidget {
   final RecipeGroceryGroup group;
   final GroceriesViewModel vm;
@@ -75,7 +74,6 @@ class _GroceriesGroupItem extends StatelessWidget {
 
                   const SizedBox(width: 16),
 
-                  // ЗМІНЕНО: Додано InkWell для візуального ефекту натискання
                   Container(
                     width: 24,
                     height: 24,
@@ -83,12 +81,11 @@ class _GroceriesGroupItem extends StatelessWidget {
                       color: Color(0xFF4B572B),
                       shape: BoxShape.circle,
                     ),
-                    // Material потрібен для InkWell ефекту на кольоровому фоні
                     child: Material(
                       color: Colors.transparent,
                       child: InkWell(
-                        customBorder: const CircleBorder(), // Кругла форма хвилі
-                        splashColor: Colors.white.withOpacity(0.3), // Колір ефекту
+                        customBorder: const CircleBorder(),
+                        splashColor: Colors.white.withOpacity(0.3),
                         highlightColor: Colors.white.withOpacity(0.1),
                         onTap: () => vm.addIngredientToShoppingList(context, ingredient),
                         child: const Icon(Icons.add, color: Colors.white, size: 16),
@@ -106,7 +103,6 @@ class _GroceriesGroupItem extends StatelessWidget {
   }
 }
 
-// --- Елемент списку покупок (Shopping List Tab) ---
 class _ShoppingListItemWidget extends StatelessWidget {
   final ShoppingListItem item;
   final GroceriesViewModel vm;
@@ -208,7 +204,6 @@ class _ShoppingListItemWidget extends StatelessWidget {
 }
 
 
-// --- Головний екран Groceries ---
 class GroceriesScreen extends StatelessWidget {
   const GroceriesScreen({super.key});
 

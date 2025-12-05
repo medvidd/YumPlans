@@ -6,7 +6,7 @@ import '/viewmodels/recipes_vm.dart';
 import 'create_recipe_screen.dart';
 
 class RecipeDetailsScreen extends StatelessWidget {
-  final Recipe recipe; // Це початковий об'єкт (для отримання ID)
+  final Recipe recipe;
 
   const RecipeDetailsScreen({super.key, required this.recipe});
 
@@ -24,12 +24,10 @@ class RecipeDetailsScreen extends StatelessWidget {
           ),
           TextButton(
             onPressed: () async {
-              Navigator.pop(ctx); // Закрити діалог
+              Navigator.pop(ctx);
 
-              // Викликаємо видалення
               await vm.deleteRecipe(recipe.id);
 
-              // Якщо екран ще активний, повертаємось назад до списку
               if (context.mounted) {
                 Navigator.pop(context);
               }
@@ -58,10 +56,8 @@ class RecipeDetailsScreen extends StatelessWidget {
     final double bgLeft = (screenWidth - bgWidth) / 2;
     final double bgTop = isTablet ? -250 : -200;
 
-    // ВИКОРИСТОВУЄМО CONSUMER ДЛЯ СЛУХАННЯ ЗМІН
     return Consumer<RecipesViewModel>(
       builder: (context, vm, child) {
-        // Якщо йде завантаження (наприклад, видалення), показуємо спіннер
         if (vm.isLoading) {
           return const Scaffold(
             backgroundColor: Color(0xFFFFFBF0),
@@ -69,13 +65,10 @@ class RecipeDetailsScreen extends StatelessWidget {
           );
         }
 
-        // ШУКАЄМО АКТУАЛЬНУ ВЕРСІЮ РЕЦЕПТУ У СПИСКУ VM
-        // Це критично для того, щоб побачити зміни після редагування.
         Recipe currentRecipe;
         try {
           currentRecipe = vm.recipes.firstWhere((r) => r.id == recipe.id);
         } catch (e) {
-          // Якщо рецепт не знайдено (наприклад, видалено), використовуємо старий як заглушку
           currentRecipe = recipe;
         }
 
@@ -106,7 +99,6 @@ class RecipeDetailsScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      // Передаємо currentRecipe, щоб в форму редагування потрапили найсвіжіші дані
                       builder: (context) => ChangeNotifierProvider.value(
                         value: vm,
                         child: CreateRecipeScreen(recipe: currentRecipe),
@@ -148,7 +140,6 @@ class RecipeDetailsScreen extends StatelessWidget {
                     children: [
                       const SizedBox(height: 20),
 
-                      // Зображення (currentRecipe)
                       Center(
                         child: Container(
                           width: imageSize,
@@ -171,7 +162,6 @@ class RecipeDetailsScreen extends StatelessWidget {
                               ? Image.network(
                             currentRecipe.imageUrl,
                             fit: BoxFit.cover,
-                            // Key важливий, щоб Flutter перемалював картинку, якщо URL змінився
                             key: ValueKey(currentRecipe.imageUrl),
                             loadingBuilder: (context, child, loadingProgress) {
                               if (loadingProgress == null) return child;
@@ -191,7 +181,6 @@ class RecipeDetailsScreen extends StatelessWidget {
 
                       const SizedBox(height: 20),
 
-                      // Назва (currentRecipe)
                       Text(
                         currentRecipe.title,
                         textAlign: TextAlign.center,
@@ -205,7 +194,6 @@ class RecipeDetailsScreen extends StatelessWidget {
 
                       const SizedBox(height: 10),
 
-                      // Інформація
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [

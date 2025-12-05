@@ -81,9 +81,8 @@ class GroceriesViewModel extends ChangeNotifier {
 
       isAddingNewItem = false;
       _newShoppingItem = NewShoppingItem();
-      notifyListeners(); // Оновлюємо UI
+      notifyListeners();
     } else {
-      // Якщо пусте ім'я - просто закриваємо
       isAddingNewItem = false;
       notifyListeners();
     }
@@ -96,7 +95,6 @@ class GroceriesViewModel extends ChangeNotifier {
     final cleanName = name.trim();
     final cleanAmount = amount.trim();
 
-    // Створюємо новий елемент завжди
     final newItem = ShoppingListItem(
       id: const Uuid().v4(),
       userId: userId,

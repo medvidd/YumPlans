@@ -42,7 +42,6 @@ class _EditPlannedMealScreenState extends State<EditPlannedMealScreen> {
     _currentDate = dateTime;
     _focusedMonth = DateTime(_currentDate.year, _currentDate.month, 1);
 
-    // ВАЖЛИВО: Ініціалізуємо вибрану страву з тієї, що прийшла в аргументах
     _selectedRecipe = widget.plannedMeal.recipe;
 
     final int hour12 = (dateTime.hour % 12) == 0 ? 12 : (dateTime.hour % 12);
@@ -122,7 +121,6 @@ class _EditPlannedMealScreenState extends State<EditPlannedMealScreen> {
     }
   }
 
-  // --- Calendar logic remains the same ---
   bool _isSameDay(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }
@@ -158,7 +156,6 @@ class _EditPlannedMealScreenState extends State<EditPlannedMealScreen> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final double horizontalPadding = screenWidth > 600 ? 80.0 : 24.0;
-    // Чи планшет?
     final bool isTablet = screenWidth > 600;
 
     return Scaffold(
@@ -202,7 +199,6 @@ class _EditPlannedMealScreenState extends State<EditPlannedMealScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // --- DATE SELECTOR ---
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -242,17 +238,14 @@ class _EditPlannedMealScreenState extends State<EditPlannedMealScreen> {
 
                 const SizedBox(height: 24),
 
-                // --- TIME INPUT ---
                 _buildTimeInput(),
 
                 const SizedBox(height: 24),
 
-                // --- SEARCH ---
                 _buildSearchRow(recipesVM),
 
                 const SizedBox(height: 24),
 
-                // --- RECIPE LIST ---
                 SizedBox(
                   height: 400,
                   child: recipesVM.isLoading
@@ -262,20 +255,16 @@ class _EditPlannedMealScreenState extends State<EditPlannedMealScreen> {
                     itemBuilder: (context, index) {
                       final recipe = recipesVM.recipes[index];
 
-                      // Перевіряємо ID для виділення
                       final isSelected = _selectedRecipe?.id == recipe.id;
 
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 12),
                         child: RecipeListItem(
                           recipe: recipe,
-                          // Якщо вибрано - передаємо жовтий колір, як на скріншоті
                           selectedColor: const Color(0xFFFFC107),
                           isSelected: isSelected,
                           onTap: () {
                             setState(() {
-                              // Оновлюємо вибір. Це змусить ListView перебудуватися
-                              // і передати isSelected = true для цього елементу.
                               _selectedRecipe = recipe;
                             });
                           },
@@ -293,8 +282,6 @@ class _EditPlannedMealScreenState extends State<EditPlannedMealScreen> {
       ),
     );
   }
-
-  // --- UI Components ---
 
   Widget _buildAppBarAction({
     required String iconPath,

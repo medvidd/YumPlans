@@ -52,7 +52,6 @@ class PlannedMealItem extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    // Зображення страви
                     Container(
                       width: 58,
                       height: 58,
@@ -61,7 +60,6 @@ class PlannedMealItem extends StatelessWidget {
                         color: Colors.grey[300],
                       ),
                       clipBehavior: Clip.antiAlias,
-                      // ВИПРАВЛЕНО: Image.network замість Image.asset
                       child: meal.recipe.imageUrl.isNotEmpty
                           ? Image.network(
                         meal.recipe.imageUrl,

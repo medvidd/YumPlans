@@ -21,7 +21,7 @@ class PlannerViewModel extends ChangeNotifier {
   bool showCalendar = false;
   late DateTime focusedMonth;
   bool _isLoading = false;
-  String? _errorMessage; // Додано поле помилки
+  String? _errorMessage;
 
   final DateFormat monthFormat = DateFormat('MMMM yyyy');
   final DateFormat weekFormat = DateFormat('MMMM d');
@@ -49,17 +49,15 @@ class PlannerViewModel extends ChangeNotifier {
     fetchPlannedMeals();
   }
 
-  // --- FIRESTORE ---
-
   Future<void> fetchPlannedMeals() async {
     _setLoading(true);
     _errorMessage = null;
     try {
-      print("Fetching meals..."); // DEBUG LOG
+      print("Fetching meals...");
       _allPlannedMeals = await _firestoreService.getPlannedMeals();
-      print("Fetched ${_allPlannedMeals.length} meals"); // DEBUG LOG
+      print("Fetched ${_allPlannedMeals.length} meals");
     } catch (e) {
-      print("ERROR fetching planner: $e"); // DEBUG LOG
+      print("ERROR fetching planner: $e");
       _errorMessage = "Could not load meals: $e";
     } finally {
       _setLoading(false);
@@ -88,11 +86,11 @@ class PlannerViewModel extends ChangeNotifier {
         mealType: mealType ?? recipe.mealType.label,
       );
 
-      print("Adding meal for: $dateTime"); // DEBUG LOG
+      print("Adding meal for: $dateTime");
       await _firestoreService.addPlannedMeal(newMeal);
       await fetchPlannedMeals();
     } catch (e) {
-      print("ERROR adding meal: $e"); // DEBUG LOG
+      print("ERROR adding meal: $e");
       _errorMessage = "Failed to add meal";
     } finally {
       _setLoading(false);
@@ -123,7 +121,6 @@ class PlannerViewModel extends ChangeNotifier {
     }
   }
 
-  // --- CALENDAR LOGIC ---
 
   void updateTodayIfNeeded() {
     final now = DateTime.now();

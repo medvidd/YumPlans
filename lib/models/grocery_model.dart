@@ -25,7 +25,6 @@ class ShoppingListItem {
     };
   }
 
-  // Створення з Firestore
   factory ShoppingListItem.fromMap(Map<String, dynamic> map) {
     return ShoppingListItem(
       id: map['id'] ?? '',
@@ -36,7 +35,6 @@ class ShoppingListItem {
     );
   }
 
-  // Метод для створення копії зі зміненими полями (для оновлення кількості)
   ShoppingListItem copyWith({
     String? id,
     String? userId,

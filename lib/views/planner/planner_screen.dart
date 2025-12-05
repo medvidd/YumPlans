@@ -9,7 +9,6 @@ import 'planned_meal_item.dart';
 import 'add_planned_meal_screen.dart';
 import 'edit_planned_meal_screen.dart';
 
-// 1. Цей віджет тепер ТІЛЬКИ ініціалізує Provider
 class PlannerScreen extends StatelessWidget {
   const PlannerScreen({super.key});
 
@@ -17,13 +16,11 @@ class PlannerScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<PlannerViewModel>(
       create: (_) => PlannerViewModel(),
-      // 2. Передаємо управління дочірньому віджету, який матиме доступ до VM
       child: const PlannerView(),
     );
   }
 }
 
-// 3. Основна логіка перенесена сюди
 class PlannerView extends StatefulWidget {
   const PlannerView({super.key});
 
@@ -51,7 +48,6 @@ class _PlannerViewState extends State<PlannerView> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      // ТЕПЕР ЦЕ ПРАЦЮВАТИМЕ, бо PlannerView знаходиться ПІД Provider'ом
       Provider.of<PlannerViewModel>(context, listen: false).updateTodayIfNeeded();
     }
   }
@@ -66,7 +62,6 @@ class _PlannerViewState extends State<PlannerView> with WidgetsBindingObserver {
     final screenHeight = MediaQuery.of(context).size.height;
     final bool isTablet = screenWidth > kTabletBreakpoint;
 
-    // Використовуємо Consumer, щоб слухати зміни
     return Consumer<PlannerViewModel>(
       builder: (context, vm, child) {
         return Scaffold(
