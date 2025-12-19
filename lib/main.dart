@@ -6,6 +6,8 @@ import 'firebase_options.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'env/env.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,8 +21,8 @@ Future<void> main() async {
   );
 
   await Supabase.initialize(
-    url: 'https://uotpuuvlzxbicwwwbmyw.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvdHB1dXZsenhiaWN3d3dibXl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ4MDAzNjksImV4cCI6MjA4MDM3NjM2OX0.My0XxgFH-0tZAibxgXqSlPX_RG8L00k_NVyG1ILS4sY',
+    url: Env.supabaseUrl,
+    anonKey: Env.supabaseAnonKey,
   );
 
   FlutterError.onError = (errorDetails) {
